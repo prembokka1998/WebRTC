@@ -1,0 +1,674 @@
+I can absolutely upgrade the UI. To make it much more attractive, I’ve redesigned it using a **modern Glassmorphism aesthetic**.
+
+Here is what I changed to make it look premium:
+
+* **Dynamic Background:** Replaced the flat black with a deep, subtle mesh-gradient background.
+* **Glassy Cards:** Changed the flat surfaces to semi-transparent glass with blur effects (`backdrop-filter`) and soft borders.
+* **Vibrant Gradients:** Upgraded the primary buttons and accents to use a sleek indigo-to-purple gradient (`#6366f1` to `#a855f7`).
+* **Better Typography:** Polished the font weights and spacing to make the text look crisp and highly readable.
+* **Smooth Animations:** Added better hover states, scaling effects on buttons, and a much cooler glowing ripple effect for the live microphone.
+
+Here is your updated, fully functional, and beautifully redesigned `voicebridge.html` file.
+
+### Updated `voicebridge.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VoiceBridge — Real-time Voice to Text</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg-color: #0f1016;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-hover: rgba(255, 255, 255, 0.06);
+    --gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --gradient-hover: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --text: #f8fafc;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --radius: 20px;
+    --radius-sm: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html, body { 
+    height: 100%; 
+    background-color: var(--bg-color);
+    /* Subtle modern animated background glow */
+    background-image: 
+      radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text); 
+    font-family: 'Inter', system-ui, sans-serif; 
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  body { display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 0; }
+
+  .page { display: none; width: 100%; max-width: 460px; padding: 32px 24px 40px; min-height: 100vh; flex-direction: column; animation: fadeIn 0.4s ease-out; }
+  .page.active { display: flex; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Header */
+  .hd { display: flex; align-items: center; gap: 16px; margin-bottom: 36px; }
+  .hd-icon { width: 48px; height: 48px; background: var(--gradient); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 8px 16px rgba(99, 102, 241, 0.25); }
+  .hd-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .hd-sub { font-size: 13px; color: var(--text2); margin-top: 2px; font-weight: 500; }
+
+  /* Role selector */
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  .role-card { 
+    background: var(--glass-bg); border: 1px solid var(--glass-border); 
+    border-radius: var(--radius); padding: 24px 16px; cursor: pointer; 
+    text-align: center; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .role-card:hover { transform: translateY(-3px); background: var(--glass-hover); border-color: rgba(255,255,255,0.15); }
+  .role-card.sel { 
+    background: rgba(99, 102, 241, 0.1); 
+    border-color: rgba(168, 85, 247, 0.4); 
+    box-shadow: 0 0 24px rgba(99, 102, 241, 0.1);
+  }
+  .role-card .ico { font-size: 32px; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); }
+  .role-card .rt { font-size: 16px; font-weight: 600; color: #fff; }
+  .role-card .rd { font-size: 12px; color: var(--text2); margin-top: 6px; line-height: 1.5; font-weight: 400; }
+
+  /* Cards */
+  .card { 
+    background: var(--glass-bg); border: 1px solid var(--glass-border); 
+    border-radius: var(--radius); padding: 24px; margin-bottom: 16px; 
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Code display */
+  .code-big { 
+    font-size: 46px; font-weight: 800; letter-spacing: 0.25em; 
+    background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-align: center; font-family: 'Courier New', monospace; padding: 16px 0; 
+  }
+  .code-hint { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 24px; font-weight: 500; }
+
+  /* Digit inputs */
+  .digits { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; }
+  .digits input {
+    width: 48px; height: 60px; font-size: 28px; font-weight: 700;
+    font-family: 'Courier New', monospace; text-align: center;
+    background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+    border-radius: 12px; color: #fff; outline: none;
+    transition: all 0.2s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .digits input:focus { border-color: #a855f7; background: rgba(168, 85, 247, 0.05); box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15); transform: translateY(-2px); }
+
+  /* Buttons */
+  .btn { 
+    width: 100%; padding: 16px; border-radius: var(--radius-sm); 
+    font-size: 15px; font-weight: 600; cursor: pointer; border: none; 
+    display: flex; align-items: center; justify-content: center; gap: 8px; 
+    transition: all 0.2s; letter-spacing: 0.3px; font-family: inherit;
+  }
+  .btn-primary { background: var(--gradient); color: #fff; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+  .btn-primary:hover { background: var(--gradient-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
+  .btn-primary:active { transform: translateY(0); }
+  
+  .btn-ghost { background: var(--glass-bg); color: #fff; border: 1px solid var(--glass-border); backdrop-filter: blur(8px); }
+  .btn-ghost:hover { background: var(--glass-hover); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+  
+  .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.2); }
+  .btn-danger:hover { background: rgba(239, 68, 68, 0.2); transform: translateY(-2px); }
+  
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-row { display: flex; gap: 12px; margin-top: 16px; }
+  .btn-row .btn { flex: 1; }
+
+  /* Status */
+  .status { 
+    display: flex; align-items: center; gap: 12px; padding: 14px 18px; 
+    background: var(--glass-bg); border-radius: var(--radius-sm); 
+    margin-bottom: 20px; font-size: 14px; font-weight: 500; color: var(--text); 
+    border: 1px solid var(--glass-border); backdrop-filter: blur(8px);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
+  .dot-amber { color: var(--amber); background: var(--amber); animation: blink 1.5s infinite; }
+  .dot-green { color: var(--green); background: var(--green); }
+  .dot-red { color: var(--red); background: var(--red); animation: blink 1s infinite; }
+  .dot-pulse { color: #a855f7; background: #a855f7; animation: pulse 1.5s infinite; }
+  
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.5);opacity:0.6} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* Mic button */
+  .mic-area { text-align: center; margin: 12px 0 28px; }
+  .mic-btn {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 38px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    margin-bottom: 12px; color: #fff; backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .mic-btn:hover:not(:disabled) { border-color: rgba(255,255,255,0.3); transform: scale(1.05); }
+  .mic-btn.live { 
+    background: rgba(239, 68, 68, 0.15); 
+    border-color: rgba(239, 68, 68, 0.5); 
+    animation: liveRing 2s cubic-bezier(0.1, 0.7, 1.0, 0.1) infinite; 
+  }
+  .mic-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  
+  @keyframes liveRing { 
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); } 
+    70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); } 
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } 
+  }
+  .mic-label { font-size: 14px; font-weight: 500; color: var(--text2); }
+
+  /* Transcript */
+  .transcript {
+    background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm); padding: 20px; min-height: 220px; max-height: 320px;
+    overflow-y: auto; font-size: 18px; line-height: 1.6; margin-bottom: 8px;
+    word-break: break-word; color: #fff; box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .ph { color: var(--text3); font-size: 15px; font-weight: 400; font-style: italic; }
+  .interim { color: var(--text2); }
+
+  /* Connecting */
+  .loading { text-align: center; padding: 80px 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+  .spin-icon { font-size: 48px; animation: spin 1s linear infinite; display: inline-block; filter: drop-shadow(0 0 10px rgba(168,85,247,0.4)); }
+  .loading p { color: var(--text); font-size: 16px; font-weight: 600; }
+  .loading span { color: var(--text2); font-size: 14px; font-weight: 400; }
+
+  /* Info row */
+  .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; font-weight: 600; }
+  .peer-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--glass-bg); border-radius: 20px; color: var(--text2); }
+  .wc { color: #fff; background: var(--glass-bg); padding: 4px 10px; border-radius: 20px; }
+
+  /* Debug */
+  .dbg { font-size: 11px; color: var(--text3); text-align: center; margin-top: 16px; font-family: 'Courier New', monospace; min-height: 14px; }
+
+  /* Label */
+  .slabel { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Error */
+  .err { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 14px; font-weight: 500; color: #fca5a5; margin-bottom: 16px; display: none; line-height: 1.5; backdrop-filter: blur(8px); }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: #fff; color: #0f1016; padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; white-space: nowrap; z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Scrollbar */
+  .transcript::-webkit-scrollbar { width: 6px; }
+  .transcript::-webkit-scrollbar-track { background: transparent; }
+  .transcript::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+  .transcript::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+</style>
+</head>
+<body>
+
+<div class="page active" id="p-home">
+  <div class="hd">
+    <div class="hd-icon">🌉</div>
+    <div><div class="hd-title">VoiceBridge</div><div class="hd-sub">Real-time voice → text</div></div>
+  </div>
+
+  <div class="role-grid">
+    <div class="role-card sel" id="rc-s" onclick="selRole('speaker')">
+      <div class="ico">🎤</div>
+      <div class="rt">Speaker</div>
+      <div class="rd">Stream your voice live</div>
+    </div>
+    <div class="role-card" id="rc-v" onclick="selRole('viewer')">
+      <div class="ico">👁</div>
+      <div class="rt">Viewer</div>
+      <div class="rd">Read spoken words instantly</div>
+    </div>
+  </div>
+
+  <div class="card" id="sp-panel">
+    <div class="slabel">Your secure room code</div>
+    <div class="code-big" id="code-disp">— — — — — —</div>
+    <div class="code-hint">Share this 6-digit code with the viewer</div>
+    <button class="btn btn-primary" onclick="createRoom()">✨ Generate Code & Start</button>
+  </div>
+
+  <div class="card" style="display:none" id="vw-panel">
+    <div class="slabel">Enter speaker's code</div>
+    <div class="digits" id="digits"></div>
+    <button class="btn btn-primary" onclick="joinRoom()">→ Join Session</button>
+  </div>
+
+  <div style="margin-top:auto;padding-top:24px">
+    <p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6;font-weight:500">
+      Works securely on Chrome & Edge<br>
+      Requires microphone permission to stream
+    </p>
+  </div>
+</div>
+
+<div class="page" id="p-conn">
+  <div class="hd"><div class="hd-icon">🌉</div><div><div class="hd-title">VoiceBridge</div></div></div>
+  <div class="loading">
+    <div class="spin-icon">⚙️</div>
+    <p id="conn-msg">Connecting…</p>
+    <span id="conn-sub">Establishing secure link</span>
+  </div>
+  <button class="btn btn-ghost" onclick="goHome()">← Cancel</button>
+</div>
+
+<div class="page" id="p-speaker">
+  <div class="hd">
+    <div class="hd-icon">🎤</div>
+    <div><div class="hd-title">VoiceBridge</div><div class="hd-sub" id="sp-codelbl">Code: ——</div></div>
+  </div>
+  <div class="status" id="sp-status-bar">
+    <div class="dot dot-amber" id="sp-dot"></div>
+    <span id="sp-status">Waiting for viewer to connect…</span>
+  </div>
+  <div class="err" id="sp-err"></div>
+  <div class="mic-area">
+    <button class="mic-btn" id="mic-btn" onclick="toggleMic()" disabled>🎙</button>
+    <div class="mic-label" id="mic-lbl">Waiting for viewer to join…</div>
+  </div>
+  <div class="info-row">
+    <span class="peer-pill" id="vw-badge">⚪ Viewer offline</span>
+    <span class="wc" id="sp-wc">0 words</span>
+  </div>
+  <div class="transcript" id="sp-box"><span class="ph">Your words appear here as you speak…</span></div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="clearSp()">🗑 Clear</button>
+    <button class="btn btn-danger" onclick="endSession()">✕ End Session</button>
+  </div>
+  <div class="dbg" id="sp-dbg"></div>
+</div>
+
+<div class="page" id="p-viewer">
+  <div class="hd">
+    <div class="hd-icon">👁</div>
+    <div><div class="hd-title">VoiceBridge</div><div class="hd-sub" id="vw-codelbl">Code: ——</div></div>
+  </div>
+  <div class="status" id="vw-status-bar">
+    <div class="dot dot-amber" id="vw-dot"></div>
+    <span id="vw-status">Connecting…</span>
+  </div>
+  <div class="info-row">
+    <span class="peer-pill" id="sp-badge">⚪ Speaker offline</span>
+    <span class="wc" id="vw-wc">0 words</span>
+  </div>
+  <div class="transcript" id="vw-box"><span class="ph">Words from the speaker will appear here in real time…</span></div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="clearVw()">🗑 Clear</button>
+    <button class="btn btn-danger" onclick="endSession()">✕ Disconnect</button>
+  </div>
+  <div class="dbg" id="vw-dbg"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  VoiceBridge v4 — uses Ably Realtime for rock-solid messaging
+// ═══════════════════════════════════════════════════════════════════
+
+if (window.location.protocol === 'file:') {
+  alert("Warning: The Web Speech API requires a local server (localhost) or HTTPS. Running this directly from a file:// path will block microphone access.");
+}
+
+const ABLY_CDN = 'https://cdn.ably.com/lib/ably.min-2.js';
+const ABLY_KEY = 'xVLyHw.DEKmEw:MtP0rX5-kLXVGFEsmG3PVA69e2Kh2h7N1_QKmFe-SaE';
+
+let ROLE = 'speaker', CODE = '', myUID = '';
+let ablyClient = null, ablyChannel = null, ablyReady = false;
+let recog = null, micOn = false;
+let finalTxt = '', spWC = 0, vwWC = 0;
+let peerConnected = false;
+
+myUID = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+// ── Build digit inputs ────────────────────────────────────────────────
+(function(){
+  const w = document.getElementById('digits');
+  for(let i = 0; i < 6; i++){
+    const el = document.createElement('input');
+    el.type = 'tel'; el.maxLength = 1; el.inputMode = 'numeric';
+    el.setAttribute('aria-label', 'Digit ' + (i+1)); el.id = 'dg' + i;
+    el.oninput = e => {
+      e.target.value = e.target.value.replace(/\D/, '');
+      if(e.target.value && i < 5) document.getElementById('dg'+(i+1)).focus();
+    };
+    el.onkeydown = e => {
+      if(e.key === 'Backspace' && !e.target.value && i > 0) document.getElementById('dg'+(i-1)).focus();
+    };
+    w.appendChild(el);
+  }
+})();
+
+// ── Helpers ──────────────────────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+function txt(id, v){ const e=$(id); if(e) e.textContent = v; }
+function setDot(id, cls){ const d=$(id); d.className = 'dot dot-' + cls; }
+function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function genCode(){ return String(Math.floor(100000 + Math.random() * 900000)); }
+function wCount(s){ return s.trim().split(/\s+/).filter(Boolean).length; }
+function dbg(msg){ txt(ROLE==='speaker'?'sp-dbg':'vw-dbg', msg); }
+
+function toast(msg, ms=3000){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), ms);
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  $(id).classList.add('active');
+}
+function selRole(r){
+  ROLE = r;
+  $('rc-s').classList.toggle('sel', r==='speaker');
+  $('rc-v').classList.toggle('sel', r==='viewer');
+  $('sp-panel').style.display = r==='speaker' ? '' : 'none';
+  $('vw-panel').style.display = r==='viewer' ? '' : 'none';
+}
+
+// ── Load Ably SDK ─────────────────────────────────────────────────────
+function loadAbly(){ 
+  return new Promise((resolve, reject) => {
+    if(window.Ably){ resolve(); return; }
+    const s = document.createElement('script');
+    s.src = ABLY_CDN;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+// ── Connect to Ably channel ───────────────────────────────────────────
+async function connectAbly(){
+  txt('conn-msg', 'Loading engine…');
+  txt('conn-sub', 'Connecting to secure server…');
+
+  try {
+    await loadAbly();
+  } catch(e){
+    txt('conn-msg', 'Connection failed');
+    txt('conn-sub', 'Check your internet connection and refresh.');
+    return;
+  }
+
+  try {
+    ablyClient = new Ably.Realtime({ key: ABLY_KEY, clientId: myUID });
+  } catch(e){
+    txt('conn-msg', 'Initialization Error');
+    txt('conn-sub', e.message);
+    return;
+  }
+
+  ablyClient.connection.on('connected', async () => {
+    ablyReady = true;
+    const chName = 'vb-' + CODE;
+    ablyChannel = ablyClient.channels.get(chName);
+
+    ablyChannel.subscribe(handleAblyMsg);
+    await ablyChannel.presence.enter({ role: ROLE, uid: myUID });
+
+    ablyChannel.presence.subscribe('enter', mem => {
+      if(mem.clientId !== myUID) onPeerPresence(mem.data);
+    });
+    
+    ablyChannel.presence.subscribe('leave', mem => {
+      if(mem.clientId !== myUID){
+        peerConnected = false;
+        if(ROLE==='speaker'){ 
+            setDot('sp-dot','amber'); 
+            txt('sp-status','Viewer disconnected — waiting…'); 
+            txt('vw-badge','⚪ Viewer offline'); 
+            $('mic-btn').disabled=true; 
+            txt('mic-lbl','Waiting for viewer…'); 
+        } else { 
+            setDot('vw-dot','amber'); 
+            txt('vw-status','Speaker disconnected…'); 
+            txt('sp-badge','⚪ Speaker offline'); 
+        }
+      }
+    });
+
+    try {
+      const resultPage = await ablyChannel.presence.get();
+      if (resultPage && resultPage.items) {
+          resultPage.items.forEach(m => { 
+              if(m.clientId !== myUID) onPeerPresence(m.data); 
+          });
+      }
+    } catch(err) {
+      console.error("Presence check failed:", err);
+    }
+
+    if(ROLE === 'speaker'){
+      showPage('p-speaker');
+      txt('sp-codelbl', 'Code: ' + CODE);
+      setDot('sp-dot', 'amber');
+      txt('sp-status', 'Waiting for viewer to connect…');
+      dbg('UID: ' + myUID.slice(0,8));
+    } else {
+      showPage('p-viewer');
+      txt('vw-codelbl', 'Code: ' + CODE);
+      setDot('vw-dot', 'amber');
+      txt('vw-status', 'Joined — waiting for speaker…');
+      dbg('UID: ' + myUID.slice(0,8));
+    }
+  });
+
+  ablyClient.connection.on('disconnected', () => {
+    ablyReady = false;
+    dbg('Reconnecting to server…');
+    if(ROLE==='speaker'){ setDot('sp-dot','red'); txt('sp-status','Reconnecting…'); }
+    else { setDot('vw-dot','red'); txt('vw-status','Reconnecting…'); }
+  });
+
+  ablyClient.connection.on('failed', () => {
+    txt('conn-msg', 'Connection failed');
+    txt('conn-sub', 'Try generating a new code.');
+  });
+}
+
+function onPeerPresence(data){
+  if(!data || !data.role) return;
+  peerConnected = true;
+  if(ROLE === 'speaker' && data.role === 'viewer'){
+    setDot('sp-dot', 'green');
+    txt('sp-status', 'Viewer connected — tap mic to speak');
+    txt('vw-badge', '🟢 Viewer connected');
+    $('mic-btn').disabled = false;
+    txt('mic-lbl', 'Tap mic to start streaming');
+  }
+  if(ROLE === 'viewer' && data.role === 'speaker'){
+    setDot('vw-dot', 'green');
+    txt('vw-status', 'Speaker connected — listening live');
+    txt('sp-badge', '🟢 Speaker connected');
+  }
+}
+
+function handleAblyMsg(msg){
+  if(msg.clientId === myUID) return; 
+  const d = msg.data;
+  if(!d || d.code !== CODE) return;
+
+  if(d.t === 'tx' && ROLE === 'viewer'){
+    renderViewer(d.f || '', d.i || '');
+  }
+  if(d.t === 'clr' && ROLE === 'viewer'){
+    vwWC = 0; txt('vw-wc', '0 words');
+    $('vw-box').innerHTML = '<span class="ph">Transcript cleared.</span>';
+  }
+  if(d.t === 'bye'){
+    toast('Session ended by the other user.');
+    setTimeout(goHome, 1500);
+  }
+}
+
+function publish(obj){
+  if(ablyChannel && ablyReady){
+    obj.code = CODE;
+    ablyChannel.publish('msg', obj);
+  }
+}
+
+// ── Room actions ─────────────────────────────────────────────────────
+function createRoom(){
+  CODE = genCode(); ROLE = 'speaker';
+  $('code-disp').textContent = CODE.split('').join(' ');
+  showPage('p-conn');
+  txt('conn-msg', 'Creating Room…');
+  connectAbly();
+}
+
+function joinRoom(){
+  let v = '';
+  for(let i=0;i<6;i++) v += ($('dg'+i)||{}).value || '';
+  if(v.length !== 6){ toast('Please enter all 6 digits.'); return; }
+  CODE = v; ROLE = 'viewer';
+  showPage('p-conn');
+  txt('conn-msg', 'Joining Room…');
+  connectAbly();
+}
+
+// ── Microphone / Speech Recognition ──────────────────────────────────
+function toggleMic(){ micOn ? stopMic() : startMic(); }
+
+function startMic(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const errEl = $('sp-err');
+  if(!SR){
+    errEl.style.display = '';
+    errEl.textContent = '⚠ Speech recognition not supported. Please use Google Chrome or MS Edge.';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  recog = new SR();
+  recog.continuous = true;
+  recog.interimResults = true;
+  recog.lang = 'en-US';
+  recog.maxAlternatives = 1;
+
+  recog.onstart = () => {
+    micOn = true;
+    $('mic-btn').classList.add('live');
+    $('mic-btn').textContent = '🔴';
+    txt('mic-lbl', 'Listening… speak now');
+    setDot('sp-dot', 'pulse');
+    txt('sp-status', 'Mic live — streaming to viewer');
+  };
+
+  recog.onresult = e => {
+    let interim = '', nf = '';
+    for(let i = e.resultIndex; i < e.results.length; i++){
+      const t = e.results[i][0].transcript;
+      if(e.results[i].isFinal) nf += t + ' ';
+      else interim += t;
+    }
+    if(nf){ finalTxt += nf; spWC = wCount(finalTxt); txt('sp-wc', spWC + ' word' + (spWC!==1?'s':'')); }
+    renderSpeaker(finalTxt, interim);
+    publish({ t:'tx', f:finalTxt, i:interim });
+  };
+
+  recog.onerror = ev => {
+    errEl.style.display = '';
+    const msgs = {
+      'not-allowed': '⛔ Mic access denied. Allow microphone access in your browser settings.',
+      'network': '🌐 Network error. Check your connection.',
+      'audio-capture': '🎙 No microphone found.',
+      'service-not-available': '⚠ Speech service unavailable right now.',
+    };
+    errEl.textContent = msgs[ev.error] || ('Mic error: ' + ev.error);
+    if(ev.error !== 'no-speech') stopMic();
+  };
+
+  recog.onend = () => {
+    if(micOn){
+      setTimeout(() => {
+        try { if(micOn) recog.start(); }
+        catch(e){ console.warn("Mic restart ignored"); }
+      }, 350); 
+    }
+  };
+
+  try { recog.start(); }
+  catch(e){ errEl.style.display=''; errEl.textContent='Could not start mic: '+e.message; }
+}
+
+function stopMic(){
+  micOn = false;
+  if(recog){ try{ recog.stop(); }catch(e){} recog = null; }
+  const mb = $('mic-btn');
+  mb.classList.remove('live');
+  mb.textContent = '🎙';
+  txt('mic-lbl', 'Mic paused — tap to resume');
+  if(peerConnected){ setDot('sp-dot','green'); txt('sp-status','Viewer connected — mic paused'); }
+  else { setDot('sp-dot','amber'); txt('sp-status','Waiting for viewer…'); }
+}
+
+// ── Render ────────────────────────────────────────────────────────────
+function renderSpeaker(f, i){
+  const b = $('sp-box');
+  if(!f && !i){ b.innerHTML = '<span class="ph">Your words appear here as you speak…</span>'; return; }
+  b.innerHTML = '<span>' + escH(f) + '</span><span class="interim">' + escH(i) + '</span>';
+  b.scrollTop = b.scrollHeight;
+}
+function renderViewer(f, i){
+  const b = $('vw-box');
+  if(!f && !i){ b.innerHTML = '<span class="ph">Words from the speaker will appear here in real time…</span>'; return; }
+  const wc = wCount(f + ' ' + i); vwWC = wc;
+  txt('vw-wc', wc + ' word' + (wc!==1?'s':''));
+  b.innerHTML = '<span>' + escH(f) + '</span><span class="interim">' + escH(i) + '</span>';
+  b.scrollTop = b.scrollHeight;
+}
+
+// ── Controls ──────────────────────────────────────────────────────────
+function clearSp(){
+  finalTxt = ''; spWC = 0; txt('sp-wc','0 words');
+  renderSpeaker('','');
+  publish({ t:'clr' });
+  toast('Transcript cleared');
+}
+function clearVw(){
+  vwWC = 0; txt('vw-wc','0 words');
+  $('vw-box').innerHTML = '<span class="ph">Transcript cleared.</span>';
+  toast('Cleared');
+}
+function endSession(){
+  publish({ t:'bye' });
+  cleanup(); goHome();
+}
+function cleanup(){
+  if(micOn) stopMic();
+  if(ablyChannel){ try{ ablyChannel.presence.leave(); ablyChannel.unsubscribe(); }catch(e){} ablyChannel=null; }
+  if(ablyClient){ try{ ablyClient.close(); }catch(e){} ablyClient=null; }
+  ablyReady=false; peerConnected=false;
+}
+function goHome(){
+  cleanup(); CODE=''; finalTxt=''; spWC=0; vwWC=0;
+  $('code-disp').textContent='— — — — — —';
+  for(let i=0;i<6;i++){const ci=$('dg'+i);if(ci)ci.value='';}
+  showPage('p-home'); selRole('speaker');
+}
+
+window.addEventListener('beforeunload', () => {
+    if(ablyChannel) { ablyChannel.presence.leave(); }
+});
+
+selRole('speaker');
+</script>
+</body>
+</html>
+
+```
