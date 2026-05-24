@@ -1,0 +1,546 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: transparent; }
+  .app { max-width: 480px; margin: 0 auto; padding: 1.5rem 1rem; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 2rem; }
+  .logo-icon { width: 38px; height: 38px; border-radius: var(--border-radius-md); background: #534AB7; display: flex; align-items: center; justify-content: center; }
+  .logo-icon i { color: #fff; font-size: 20px; }
+  .logo-text { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+  .logo-sub { font-size: 13px; color: var(--color-text-secondary); }
+
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .role-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: center; }
+  .role-card:hover { border-color: var(--color-border-primary); background: var(--color-background-secondary); }
+  .role-card.selected { border: 2px solid #534AB7; background: #EEEDFE; }
+  .role-card i { font-size: 28px; color: #534AB7; display: block; margin-bottom: 8px; }
+  .role-card .rc-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .role-card .rc-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; line-height: 1.4; }
+
+  .section-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500; letter-spacing: 0.02em; }
+  .code-display { font-size: 38px; font-weight: 500; letter-spacing: 0.15em; color: var(--color-text-primary); font-family: var(--font-mono); text-align: center; padding: 1rem; background: var(--color-background-secondary); border-radius: var(--border-radius-md); margin-bottom: 0.5rem; }
+  .code-hint { font-size: 12px; color: var(--color-text-tertiary); text-align: center; margin-bottom: 1.25rem; }
+
+  .code-input-row { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+  .code-input-row input { flex: 1; font-size: 28px; letter-spacing: 0.12em; font-family: var(--font-mono); text-align: center; padding: 0.75rem; border-radius: var(--border-radius-md); }
+  .code-input-row input::placeholder { font-size: 18px; letter-spacing: 0; font-family: var(--font-sans); }
+
+  .btn { width: 100%; padding: 0.8rem 1rem; border-radius: var(--border-radius-md); font-size: 15px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn:hover { background: var(--color-background-secondary); }
+  .btn.primary { background: #534AB7; color: #fff; border-color: #534AB7; }
+  .btn.primary:hover { background: #3C3489; border-color: #3C3489; }
+  .btn.danger { background: #A32D2D; color: #fff; border-color: #A32D2D; }
+  .btn.danger:hover { background: #791F1F; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-sm { width: auto; padding: 0.45rem 0.9rem; font-size: 13px; }
+
+  .status-bar { display: flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: var(--color-background-secondary); border-radius: var(--border-radius-md); margin-bottom: 1rem; font-size: 13px; color: var(--color-text-secondary); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #888; flex-shrink: 0; }
+  .dot.green { background: #639922; }
+  .dot.amber { background: #BA7517; }
+  .dot.red { background: #A32D2D; animation: blink 1s infinite; }
+  .dot.pulse { background: #534AB7; animation: pulse 1.2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.7} }
+
+  .transcript-box { min-height: 200px; max-height: 340px; overflow-y: auto; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; font-size: 16px; line-height: 1.7; color: var(--color-text-primary); word-break: break-word; }
+  .transcript-box .word-stream { }
+  .transcript-box .interim { color: var(--color-text-tertiary); font-style: italic; }
+  .transcript-box .final-text { color: var(--color-text-primary); }
+  .transcript-box .placeholder { color: var(--color-text-tertiary); font-size: 14px; }
+
+  .mic-btn { width: 72px; height: 72px; border-radius: 50%; border: 0.5px solid var(--color-border-secondary); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; transition: background 0.15s; }
+  .mic-btn i { font-size: 32px; color: var(--color-text-secondary); }
+  .mic-btn.active { background: #FCEBEB; border-color: #A32D2D; }
+  .mic-btn.active i { color: #A32D2D; animation: pulse 1.2s infinite; }
+  .mic-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .info-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .peer-badge { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--color-text-secondary); }
+  .peer-badge i { font-size: 16px; }
+
+  .word-count { font-size: 12px; color: var(--color-text-tertiary); }
+
+  .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #2C2C2A; color: #F1EFE8; padding: 0.6rem 1.2rem; border-radius: var(--border-radius-md); font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; z-index: 999; }
+  .toast.show { opacity: 1; }
+
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1rem 0; }
+
+  .connecting-anim { text-align: center; padding: 2rem 0; }
+  .connecting-anim i { font-size: 36px; color: #BA7517; animation: spin 1.2s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .connecting-anim p { font-size: 14px; color: var(--color-text-secondary); margin-top: 0.75rem; }
+
+  .error-msg { background: #FCEBEB; border: 0.5px solid #F09595; border-radius: var(--border-radius-md); padding: 0.75rem 1rem; font-size: 13px; color: #A32D2D; margin-bottom: 1rem; display: none; }
+
+  .bottom-row { display: flex; gap: 8px; margin-top: 1rem; }
+  .bottom-row .btn { flex: 1; }
+</style>
+
+<div class="app" role="main">
+  <h2 class="sr-only">Real-time voice to text communicator — speak on one device, see words live on another</h2>
+
+  <div class="screen active" id="screen-home">
+    <div class="logo-row">
+      <div class="logo-icon"><i class="ti ti-wave-sine" aria-hidden="true"></i></div>
+      <div>
+        <div class="logo-text">VoiceBridge</div>
+        <div class="logo-sub">Real-time voice ↔ text</div>
+      </div>
+    </div>
+
+    <div class="role-grid">
+      <div class="role-card selected" id="role-speaker" onclick="selectRole('speaker')">
+        <i class="ti ti-microphone" aria-hidden="true"></i>
+        <div class="rc-title">Speaker</div>
+        <div class="rc-desc">Talk and share your voice in real time</div>
+      </div>
+      <div class="role-card" id="role-viewer" onclick="selectRole('viewer')">
+        <i class="ti ti-eye" aria-hidden="true"></i>
+        <div class="rc-title">Viewer</div>
+        <div class="rc-desc">See spoken words appear instantly</div>
+      </div>
+    </div>
+
+    <div class="card" id="speaker-section">
+      <div class="section-label">Your room code</div>
+      <div class="code-display" id="room-code-display">------</div>
+      <div class="code-hint">Share this code with the viewer device</div>
+      <button class="btn primary" onclick="createRoom()"><i class="ti ti-plus" aria-hidden="true"></i> Generate code &amp; start</button>
+    </div>
+
+    <div class="card" id="viewer-section" style="display:none;">
+      <div class="section-label">Enter room code</div>
+      <div class="code-input-row">
+        <input type="text" id="join-code-input" maxlength="6" placeholder="6-digit code" oninput="this.value=this.value.replace(/\D/g,'').toUpperCase()" />
+      </div>
+      <button class="btn primary" onclick="joinRoom()"><i class="ti ti-arrow-right" aria-hidden="true"></i> Join session</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-connecting">
+    <div class="logo-row">
+      <div class="logo-icon"><i class="ti ti-wave-sine" aria-hidden="true"></i></div>
+      <div><div class="logo-text">VoiceBridge</div></div>
+    </div>
+    <div class="connecting-anim">
+      <i class="ti ti-refresh" aria-hidden="true"></i>
+      <p id="connecting-msg">Connecting to session...</p>
+    </div>
+    <button class="btn" style="margin-top:1.5rem;" onclick="goHome()"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</button>
+  </div>
+
+  <div class="screen" id="screen-speaker">
+    <div class="logo-row">
+      <div class="logo-icon"><i class="ti ti-wave-sine" aria-hidden="true"></i></div>
+      <div>
+        <div class="logo-text">VoiceBridge</div>
+        <div class="logo-sub" id="speaker-code-label">Code: ------</div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="dot" id="speaker-dot"></div>
+      <span id="speaker-status-text">Waiting for viewer to connect...</span>
+    </div>
+
+    <div class="error-msg" id="speech-error">Microphone not available. Please allow mic access and try again.</div>
+
+    <button class="mic-btn" id="mic-btn" onclick="toggleMic()" disabled title="Start microphone">
+      <i class="ti ti-microphone" aria-hidden="true"></i>
+    </button>
+    <div style="text-align:center; font-size:13px; color:var(--color-text-tertiary); margin-bottom:1rem;" id="mic-hint">Waiting for viewer...</div>
+
+    <div class="info-row">
+      <div class="peer-badge"><i class="ti ti-device-mobile" aria-hidden="true"></i> <span id="viewer-status-badge">Viewer not connected</span></div>
+      <div class="word-count" id="speaker-word-count">0 words</div>
+    </div>
+
+    <div class="transcript-box" id="speaker-transcript">
+      <span class="placeholder">Your spoken words will appear here as you speak...</span>
+    </div>
+
+    <div class="bottom-row">
+      <button class="btn" onclick="clearTranscript()"><i class="ti ti-trash" aria-hidden="true"></i> Clear</button>
+      <button class="btn danger" onclick="endSession()"><i class="ti ti-x" aria-hidden="true"></i> End session</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-viewer">
+    <div class="logo-row">
+      <div class="logo-icon"><i class="ti ti-wave-sine" aria-hidden="true"></i></div>
+      <div>
+        <div class="logo-text">VoiceBridge</div>
+        <div class="logo-sub" id="viewer-code-label">Code: ------</div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="dot" id="viewer-dot"></div>
+      <span id="viewer-status-text">Connecting...</span>
+    </div>
+
+    <div class="info-row">
+      <div class="peer-badge"><i class="ti ti-microphone" aria-hidden="true"></i> <span id="speaker-status-badge">Speaker not connected</span></div>
+      <div class="word-count" id="viewer-word-count">0 words</div>
+    </div>
+
+    <div class="transcript-box" id="viewer-transcript">
+      <span class="placeholder">Words from the speaker will appear here in real time...</span>
+    </div>
+
+    <div class="bottom-row">
+      <button class="btn" onclick="clearViewerTranscript()"><i class="ti ti-trash" aria-hidden="true"></i> Clear</button>
+      <button class="btn danger" onclick="endSession()"><i class="ti ti-x" aria-hidden="true"></i> Disconnect</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentRole = 'speaker';
+let roomCode = '';
+let ws = null;
+let recognition = null;
+let micActive = false;
+let finalText = '';
+let viewerConnected = false;
+let speakerConnected = false;
+let wordCount = 0;
+let viewerWordCount = 0;
+let reconnectTimer = null;
+let wsConnected = false;
+let pendingCode = '';
+
+const WS_URL = 'wss://free.blr2.piesocket.com/v3/voicebridge_';
+const API_KEY = '?api_key=oCdCMcMPQpTuh5qZHIZwDmMPdMMPRkFi&notify_self=1';
+
+function selectRole(role) {
+  currentRole = role;
+  document.getElementById('role-speaker').classList.toggle('selected', role === 'speaker');
+  document.getElementById('role-viewer').classList.toggle('selected', role === 'viewer');
+  document.getElementById('speaker-section').style.display = role === 'speaker' ? '' : 'none';
+  document.getElementById('viewer-section').style.display = role === 'viewer' ? '' : 'none';
+}
+
+function showToast(msg, dur = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function genCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function connectWS(code, role) {
+  if (ws) { try { ws.close(); } catch(e){} ws = null; }
+  wsConnected = false;
+  const url = WS_URL + code + API_KEY;
+  ws = new WebSocket(url);
+  ws.onopen = () => {
+    wsConnected = true;
+    const msg = { type: 'hello', role: role, code: code };
+    ws.send(JSON.stringify(msg));
+    if (role === 'speaker') {
+      onSpeakerConnected();
+    } else {
+      onViewerConnected();
+    }
+  };
+  ws.onmessage = (e) => {
+    try {
+      const d = JSON.parse(e.data);
+      handleMessage(d);
+    } catch(err) {}
+  };
+  ws.onclose = () => {
+    wsConnected = false;
+    if (currentRole === 'speaker') {
+      setDot('speaker-dot', '');
+      setStatus('speaker-status-text', 'Connection lost. Reconnecting...');
+      viewerConnected = false;
+      setDot('speaker-dot', 'amber');
+      document.getElementById('viewer-status-badge').textContent = 'Viewer disconnected';
+      document.getElementById('mic-btn').disabled = true;
+      document.getElementById('mic-hint').textContent = 'Reconnecting...';
+      if (micActive) stopMic();
+      scheduleReconnect();
+    } else {
+      setDot('viewer-dot', '');
+      setStatus('viewer-status-text', 'Connection lost. Reconnecting...');
+      speakerConnected = false;
+      document.getElementById('speaker-status-badge').textContent = 'Speaker disconnected';
+      scheduleReconnect();
+    }
+  };
+  ws.onerror = () => {};
+}
+
+function scheduleReconnect() {
+  clearTimeout(reconnectTimer);
+  reconnectTimer = setTimeout(() => {
+    if (roomCode) connectWS(roomCode, currentRole);
+  }, 2500);
+}
+
+function handleMessage(d) {
+  if (d.role === currentRole) return;
+  if (d.type === 'hello') {
+    if (currentRole === 'speaker' && d.role === 'viewer') {
+      viewerConnected = true;
+      setDot('speaker-dot', 'green');
+      setStatus('speaker-status-text', 'Viewer connected — start speaking');
+      document.getElementById('viewer-status-badge').textContent = 'Viewer connected';
+      document.getElementById('mic-btn').disabled = false;
+      document.getElementById('mic-hint').textContent = 'Tap mic to start speaking';
+    }
+    if (currentRole === 'viewer' && d.role === 'speaker') {
+      speakerConnected = true;
+      setDot('viewer-dot', 'green');
+      setStatus('viewer-status-text', 'Speaker connected — listening...');
+      document.getElementById('speaker-status-badge').textContent = 'Speaker connected';
+    }
+    if (wsConnected) ws.send(JSON.stringify({ type: 'ack', role: currentRole, code: roomCode }));
+  }
+  if (d.type === 'ack') {
+    if (currentRole === 'speaker' && d.role === 'viewer') {
+      viewerConnected = true;
+      setDot('speaker-dot', 'green');
+      setStatus('speaker-status-text', 'Viewer connected — start speaking');
+      document.getElementById('viewer-status-badge').textContent = 'Viewer connected';
+      document.getElementById('mic-btn').disabled = false;
+      document.getElementById('mic-hint').textContent = 'Tap mic to start speaking';
+    }
+    if (currentRole === 'viewer' && d.role === 'speaker') {
+      speakerConnected = true;
+      setDot('viewer-dot', 'green');
+      setStatus('viewer-status-text', 'Speaker connected — listening...');
+      document.getElementById('speaker-status-badge').textContent = 'Speaker connected';
+    }
+  }
+  if (d.type === 'transcript' && currentRole === 'viewer') {
+    renderViewerTranscript(d.final, d.interim);
+  }
+  if (d.type === 'clear' && currentRole === 'viewer') {
+    finalText = '';
+    viewerWordCount = 0;
+    renderViewerTranscript('', '');
+  }
+  if (d.type === 'end') {
+    showToast('Session ended by the other device.');
+    setTimeout(() => goHome(), 1200);
+  }
+}
+
+function setDot(id, cls) {
+  const el = document.getElementById(id);
+  el.className = 'dot' + (cls ? ' ' + cls : '');
+}
+function setStatus(id, text) {
+  document.getElementById(id).textContent = text;
+}
+
+function onSpeakerConnected() {
+  showScreen('screen-speaker');
+  document.getElementById('speaker-code-label').textContent = 'Code: ' + roomCode;
+  setDot('speaker-dot', 'amber');
+  setStatus('speaker-status-text', 'Waiting for viewer to connect...');
+  document.getElementById('mic-btn').disabled = true;
+  document.getElementById('mic-hint').textContent = 'Waiting for viewer to join...';
+}
+
+function onViewerConnected() {
+  showScreen('screen-viewer');
+  document.getElementById('viewer-code-label').textContent = 'Code: ' + roomCode;
+  setDot('viewer-dot', 'amber');
+  setStatus('viewer-status-text', 'Connected — waiting for speaker to start');
+  document.getElementById('speaker-status-badge').textContent = 'Waiting for speaker...';
+}
+
+function createRoom() {
+  roomCode = genCode();
+  currentRole = 'speaker';
+  document.getElementById('room-code-display').textContent = roomCode;
+  showScreen('screen-connecting');
+  document.getElementById('connecting-msg').textContent = 'Setting up room ' + roomCode + '...';
+  connectWS(roomCode, 'speaker');
+}
+
+function joinRoom() {
+  const code = document.getElementById('join-code-input').value.trim();
+  if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+    showToast('Please enter a valid 6-digit code.');
+    return;
+  }
+  roomCode = code;
+  currentRole = 'viewer';
+  showScreen('screen-connecting');
+  document.getElementById('connecting-msg').textContent = 'Joining room ' + roomCode + '...';
+  connectWS(roomCode, 'viewer');
+}
+
+function toggleMic() {
+  if (micActive) stopMic();
+  else startMic();
+}
+
+function startMic() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('speech-error').style.display = '';
+    document.getElementById('speech-error').textContent = 'Speech recognition is not supported in this browser. Please use Chrome or Edge.';
+    return;
+  }
+  document.getElementById('speech-error').style.display = 'none';
+  recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+  recognition.onstart = () => {
+    micActive = true;
+    const btn = document.getElementById('mic-btn');
+    btn.classList.add('active');
+    btn.title = 'Stop microphone';
+    document.getElementById('mic-hint').textContent = 'Listening... speak now';
+    setDot('speaker-dot', 'pulse');
+    setStatus('speaker-status-text', 'Mic active — speaking to viewer');
+  };
+  recognition.onresult = (e) => {
+    let interim = '';
+    let newFinal = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        newFinal += t + ' ';
+      } else {
+        interim += t;
+      }
+    }
+    if (newFinal) {
+      finalText += newFinal;
+      wordCount = finalText.trim().split(/\s+/).filter(Boolean).length;
+      document.getElementById('speaker-word-count').textContent = wordCount + ' word' + (wordCount !== 1 ? 's' : '');
+    }
+    renderSpeakerTranscript(finalText, interim);
+    sendTranscript(finalText, interim);
+  };
+  recognition.onerror = (e) => {
+    if (e.error === 'not-allowed') {
+      document.getElementById('speech-error').style.display = '';
+      document.getElementById('speech-error').textContent = 'Microphone access denied. Please allow mic permission.';
+    }
+    micActive = false;
+    const btn = document.getElementById('mic-btn');
+    btn.classList.remove('active');
+    setDot('speaker-dot', 'green');
+    setStatus('speaker-status-text', 'Viewer connected — tap mic to speak');
+  };
+  recognition.onend = () => {
+    if (micActive) {
+      try { recognition.start(); } catch(e){}
+    }
+  };
+  try { recognition.start(); } catch(e) {}
+}
+
+function stopMic() {
+  micActive = false;
+  if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
+  const btn = document.getElementById('mic-btn');
+  btn.classList.remove('active');
+  btn.title = 'Start microphone';
+  document.getElementById('mic-hint').textContent = 'Tap mic to start speaking';
+  if (viewerConnected) {
+    setDot('speaker-dot', 'green');
+    setStatus('speaker-status-text', 'Viewer connected — mic stopped');
+  }
+}
+
+function sendTranscript(fin, interim) {
+  if (ws && wsConnected) {
+    ws.send(JSON.stringify({ type: 'transcript', role: 'speaker', code: roomCode, final: fin, interim: interim }));
+  }
+}
+
+function renderSpeakerTranscript(fin, interim) {
+  const box = document.getElementById('speaker-transcript');
+  if (!fin && !interim) {
+    box.innerHTML = '<span class="placeholder">Your spoken words will appear here as you speak...</span>';
+    return;
+  }
+  box.innerHTML = '<span class="final-text">' + escHtml(fin) + '</span><span class="interim">' + escHtml(interim) + '</span>';
+  box.scrollTop = box.scrollHeight;
+}
+
+function renderViewerTranscript(fin, interim) {
+  const box = document.getElementById('viewer-transcript');
+  if (!fin && !interim) {
+    box.innerHTML = '<span class="placeholder">Words from the speaker will appear here in real time...</span>';
+    return;
+  }
+  const count = (fin + ' ' + interim).trim().split(/\s+/).filter(Boolean).length;
+  viewerWordCount = count;
+  document.getElementById('viewer-word-count').textContent = count + ' word' + (count !== 1 ? 's' : '');
+  box.innerHTML = '<span class="final-text">' + escHtml(fin) + '</span><span class="interim">' + escHtml(interim) + '</span>';
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearTranscript() {
+  finalText = '';
+  wordCount = 0;
+  document.getElementById('speaker-word-count').textContent = '0 words';
+  renderSpeakerTranscript('', '');
+  if (ws && wsConnected) ws.send(JSON.stringify({ type: 'clear', role: 'speaker', code: roomCode }));
+  showToast('Transcript cleared');
+}
+
+function clearViewerTranscript() {
+  viewerWordCount = 0;
+  document.getElementById('viewer-word-count').textContent = '0 words';
+  renderViewerTranscript('', '');
+  showToast('Transcript cleared');
+}
+
+function endSession() {
+  if (ws && wsConnected) ws.send(JSON.stringify({ type: 'end', role: currentRole, code: roomCode }));
+  if (micActive) stopMic();
+  clearTimeout(reconnectTimer);
+  if (ws) { try { ws.close(); } catch(e){} ws = null; }
+  goHome();
+}
+
+function goHome() {
+  if (micActive) stopMic();
+  clearTimeout(reconnectTimer);
+  if (ws) { try { ws.close(); } catch(e){} ws = null; }
+  roomCode = '';
+  finalText = '';
+  wordCount = 0;
+  viewerConnected = false;
+  speakerConnected = false;
+  wsConnected = false;
+  document.getElementById('room-code-display').textContent = '------';
+  document.getElementById('join-code-input').value = '';
+  showScreen('screen-home');
+  selectRole('speaker');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+selectRole('speaker');
+</script>
