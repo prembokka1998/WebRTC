@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snake & Ladder Arena</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
 
@@ -49,7 +50,6 @@
     background: linear-gradient(135deg, var(--ue-accent), var(--ue-purple));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     text-align: center; letter-spacing: 4px;
-    text-shadow: none;
   }
   .game-subtitle {
     font-size: clamp(10px, 3vw, 13px); color: var(--ue-muted); letter-spacing: 6px;
@@ -103,7 +103,6 @@
 
   /* ── ROOM SCREEN ── */
   .room-layout { display: grid; grid-template-columns: 1fr 260px; gap: 12px; flex: 1; }
-
   .players-panel { display: flex; flex-direction: column; gap: 10px; }
 
   .room-code-display {
@@ -119,7 +118,6 @@
     background: transparent; border: 1px solid var(--ue-border);
     color: var(--ue-muted); font-size: 12px; padding: 5px 10px;
     border-radius: 3px; cursor: pointer; font-family: 'Rajdhani', sans-serif;
-    letter-spacing: 1px;
   }
   .copy-btn:hover { border-color: var(--ue-accent); color: var(--ue-accent); }
 
@@ -127,9 +125,7 @@
     background: var(--ue-bg); border: 1px solid var(--ue-border);
     border-radius: 3px; padding: 10px 14px;
     display: flex; align-items: center; gap: 12px;
-    transition: border-color 0.3s;
   }
-  .player-slot.occupied { border-color: var(--ue-border); }
   .player-slot.me { border-left: 3px solid var(--ue-accent); }
 
   .player-avatar {
@@ -199,13 +195,10 @@
 
   /* ── GAME SCREEN ── */
   .game-layout { display: grid; grid-template-columns: 1fr 240px; gap: 12px; flex: 1; }
-
-  .board-container {
-    display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;
-  }
+  .board-container { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
 
   #gameCanvas {
-    border: 5px solid #0d4143; /* Vector style dark border */
+    border: 5px solid #0d4143;
     border-radius: 6px; display: block;
     width: 100%;
     max-width: 460px;
@@ -214,14 +207,9 @@
     box-shadow: 0 0 20px rgba(0,180,255,0.15);
   }
 
-  .game-controls {
-    display: flex; gap: 10px; align-items: center; width: 100%; max-width: 460px;
-  }
-
-  .dice-display {
-    background: var(--ue-panel); border: 1px solid var(--ue-border);
-    border-radius: 4px; padding: 8px 16px;
-  }
+  .game-controls { display: flex; gap: 10px; align-items: center; width: 100%; max-width: 460px; }
+  .dice-display { background: var(--ue-panel); border: 1px solid var(--ue-border); border-radius: 4px; padding: 8px 16px; }
+  
   .dice-face {
     width: 44px; height: 44px;
     background: var(--ue-bg); border: 2px solid var(--ue-accent);
@@ -236,10 +224,7 @@
     75% { transform: rotate(15deg) scale(1.1); }
   }
 
-  .turn-info {
-    flex: 1; background: var(--ue-panel); border: 1px solid var(--ue-border);
-    border-radius: 4px; padding: 8px 14px;
-  }
+  .turn-info { flex: 1; background: var(--ue-panel); border: 1px solid var(--ue-border); border-radius: 4px; padding: 8px 14px; }
   .turn-label { font-size: 11px; color: var(--ue-muted); letter-spacing: 2px; }
   .turn-player { font-size: 16px; font-weight: 600; }
 
@@ -252,14 +237,11 @@
     transition: all 0.2s;
   }
   .roll-btn:hover { transform: scale(1.04); box-shadow: var(--ue-glow); }
-  .roll-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .roll-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   .game-sidebar { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-
-  .scoreboard {
-    background: var(--ue-panel); border: 1px solid var(--ue-border);
-    border-radius: 4px; padding: 12px;
-  }
+  .scoreboard { background: var(--ue-panel); border: 1px solid var(--ue-border); border-radius: 4px; padding: 12px; }
+  
   .sb-row {
     display: flex; align-items: center; gap: 8px; padding: 5px 0;
     border-bottom: 1px solid var(--ue-border);
@@ -270,29 +252,24 @@
   .sb-name { flex: 1; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sb-sq { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--ue-muted); }
 
-  .voice-controls {
-    background: var(--ue-panel); border: 1px solid var(--ue-border);
-    border-radius: 4px; padding: 12px;
-  }
+  .voice-controls { background: var(--ue-panel); border: 1px solid var(--ue-border); border-radius: 4px; padding: 12px; }
   .vc-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
   .vc-name { flex: 1; font-size: 13px; }
 
   /* ── WIN SCREEN ── */
   .win-screen {
     display: none; flex-direction: column; align-items: center;
-    justify-content: center; min-height: 80vh; gap: 20px;
-    text-align: center;
+    justify-content: center; min-height: 80vh; gap: 20px; text-align: center;
   }
   .win-screen.active { display: flex; }
   .win-trophy { font-size: 64px; }
   .win-title {
     font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 900;
-    color: var(--ue-gold);
-    text-shadow: 0 0 30px rgba(240,192,64,0.5);
+    color: var(--ue-gold); text-shadow: 0 0 30px rgba(240,192,64,0.5);
   }
   .win-name { font-size: 20px; color: var(--ue-text); margin-top: -10px; }
 
-  /* ── misc ── */
+  /* ── MISC ── */
   .status-bar {
     background: var(--ue-bg); border: 1px solid var(--ue-border);
     border-radius: 3px; padding: 8px 14px;
@@ -305,21 +282,13 @@
     background: transparent; border: 1px solid var(--ue-border);
     color: var(--ue-muted); padding: 8px 14px; border-radius: 3px;
     cursor: pointer; font-size: 16px; transition: all 0.2s;
-    font-family: 'Rajdhani', sans-serif;
   }
   .mic-toggle.on { border-color: var(--ue-green); color: var(--ue-green); box-shadow: 0 0 8px rgba(0,255,136,0.3); }
   .mic-toggle.muted { border-color: var(--ue-red); color: var(--ue-red); }
 
-  .top-bar {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;
-  }
-  .top-bar-title {
-    font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700;
-    color: var(--ue-accent); letter-spacing: 3px;
-  }
-  .top-bar-room {
-    font-size: 12px; color: var(--ue-muted); letter-spacing: 2px;
-  }
+  .top-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .top-bar-title { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700; color: var(--ue-accent); letter-spacing: 3px; }
+  .top-bar-room { font-size: 12px; color: var(--ue-muted); letter-spacing: 2px; }
   .top-bar-spacer { flex: 1; min-width: 20px; }
 
   .notif {
@@ -344,9 +313,7 @@
   .webrtc-info b { color: var(--ue-accent); font-weight: 600; }
 
   @media (max-width: 800px) {
-    .room-layout, .game-layout {
-      grid-template-columns: 1fr;
-    }
+    .room-layout, .game-layout { grid-template-columns: 1fr; }
     .screen { padding: 10px; }
     .top-bar { justify-content: space-between; }
     .top-bar-spacer { display: none; }
@@ -358,7 +325,6 @@
 </head>
 <body>
 
-<!-- ══ LOBBY ══ -->
 <div id="lobbyScreen" class="screen active">
   <div class="lobby-wrapper">
     <div>
@@ -395,7 +361,6 @@
   </div>
 </div>
 
-<!-- ══ ROOM/LOBBY ══ -->
 <div id="roomScreen" class="screen">
   <div class="top-bar">
     <div class="top-bar-title">MISSION BRIEFING</div>
@@ -438,7 +403,6 @@
   </div>
 </div>
 
-<!-- ══ GAME SCREEN ══ -->
 <div id="gameScreen" class="screen">
   <div class="top-bar">
     <div class="top-bar-title">SNAKE &amp; LADDER</div>
@@ -486,7 +450,6 @@
   </div>
 </div>
 
-<!-- ══ WIN SCREEN ══ -->
 <div id="winScreen" class="win-screen">
   <div class="win-trophy">🏆</div>
   <div class="win-title">VICTORY</div>
@@ -501,20 +464,19 @@ const COLORS = ['#00b4ff','#ff6b00','#00ff88','#8b5cf6'];
 const COLOR_NAMES = ['Blue','Orange','Green','Purple'];
 const PIPS = ['#00b4ff','#ff6b00','#00ff88','#8b5cf6'];
 
-// ── EXACT MATCH MAP DATA FROM "colorful-snakes-and-ladders-board-game-with-numbered-squares-vector.jpg" ──
+// ── DATA FOR SNAKES AND LADDERS ──
 const SNAKES = { 16:6, 59:19, 63:18, 67:28, 75:24, 89:69, 95:76, 99:77 };
 const LADDERS = { 8:14, 17:23, 32:50, 35:46, 56:64, 68:73, 76:97, 79:81 };
 
-// Aesthetic configurations to draw the cartoon snakes matching the image styles
 const SNAKE_STYLES = {
-  16: { color: '#ffcd38', waves: 2, amp: 14 }, // Yellow/Orange bottom snake
-  59: { color: '#f25c05', waves: 3, amp: 20 }, // Left long orange snake
-  63: { color: '#a239ca', waves: 2.5, amp: 18 },// Purple/Pink snake
-  67: { color: '#ff6b6b', waves: 3, amp: 12 }, // Salmon right-middle snake
-  75: { color: '#2196f3', waves: 4, amp: 22 }, // Long blue/yellow center snake
-  89: { color: '#4caf50', waves: 2, amp: 16 }, // Green top-right snake
-  95: { color: '#e91e63', waves: 2.5, amp: 12 },// Red upper-center snake
-  99: { color: '#afb42b', waves: 3, amp: 16 }  // Yellow-green top-left snake
+  16: { color: '#ffcd38', waves: 2, amp: 14 },
+  59: { color: '#f25c05', waves: 3, amp: 20 },
+  63: { color: '#a239ca', waves: 2.5, amp: 18 },
+  67: { color: '#ff6b6b', waves: 3, amp: 12 },
+  75: { color: '#2196f3', waves: 4, amp: 22 },
+  89: { color: '#4caf50', waves: 2, amp: 16 },
+  95: { color: '#e91e63', waves: 2.5, amp: 12 },
+  99: { color: '#afb42b', waves: 3, amp: 16 }
 };
 
 let state = {
@@ -589,7 +551,7 @@ async function handleSignal(msg) {
     setTimeout(() => applyMove(msg.playerIdx, msg.dice, msg.newPos, msg.nextTurn), 600);
   }
   if (msg.type === 'playerUpdate') {
-    const idx = state.players.findIndex(p => p.id === msg.playerId);
+    const idx = state.players.findIndex(p => p.playerId === msg.playerId);
     if (idx < 0) {
       state.players.push(msg.playerData);
     }
@@ -667,7 +629,7 @@ async function handleOffer(peerId, sdp) {
       const audio = new Audio(); audio.srcObject = e.streams[0]; audio.autoplay = true; document.body.appendChild(audio);
       monitorSpeaking(peerId, e.streams[0]);
     };
-    p.onicecandidate = (e) => { if (e.candidate) broadcast({ type: 'ice', from: state.myId, to: peerId, candidate: e.candidate }); };
+    p.onicecandidate = (e) => { if (e.candidate) broadcast({ type: 'ice', from: state.myId, to: peerId, sdp: e.candidate }); };
     p.ondatachannel = (e) => setupDataChannel(peerId, e.channel);
     return p;
   })();
@@ -807,7 +769,7 @@ function renderPlayers() {
         <div class="player-avatar av-${i}">${p.name.substring(0,2).toUpperCase()}</div>
         <div class="player-info">
           <div class="player-name" style="color:${COLORS[i]}">${p.name}${isMe?' (You)':''}</div>
-          <div class="player-status">${isMe?'■ CONNECTED':'■ CONNECTED'}</div>
+          <div class="player-status">■ CONNECTED</div>
         </div>
         <div class="voice-indicator ${state.speaking[p.id]?'speaking':''}"></div>
       </div>`;
@@ -868,43 +830,43 @@ function launchGame() {
   addSysMsg('game', 'Game started! ' + state.players[0].name + ' goes first.');
 }
 
-// ── BOARD RENDERING ENGINE ──
+// ── FIXED COORDINATE RENDERING ENGINE ──
 const BOARD_SIZE = 10;
 const CELL_SIZE = 46;
-const OFFSET = 0;
 
+// Unified coordinate lookup function
 function cellToXY(cell) {
   if (cell < 1) return { x: -999, y: -999 };
-  const idx = cell - 1;
-  const row = Math.floor(idx / BOARD_SIZE);
-  let col = idx % BOARD_SIZE;
-  if (row % 2 === 1) col = BOARD_SIZE - 1 - col;
-  const x = OFFSET + col * CELL_SIZE + CELL_SIZE / 2;
-  const y = OFFSET + (BOARD_SIZE - 1 - row) * CELL_SIZE + CELL_SIZE / 2;
+  const gridRowFromBottom = Math.floor((cell - 1) / BOARD_SIZE);
+  const row = (BOARD_SIZE - 1) - gridRowFromBottom; // Map bottom-up row to top-down coordinates
+  let col = (cell - 1) % BOARD_SIZE;
+  
+  // Apply zigzag pattern on alternative rows
+  if (gridRowFromBottom % 2 === 1) {
+    col = (BOARD_SIZE - 1) - col;
+  }
+  
+  const x = col * CELL_SIZE + CELL_SIZE / 2;
+  const y = row * CELL_SIZE + CELL_SIZE / 2;
   return { x, y };
 }
 
-// Beautiful procedural vector asset drawers
 function drawVectorSnake(ctx, fromCell, toCell, cfg) {
   const head = cellToXY(fromCell);
   const tail = cellToXY(toCell);
   
   const dx = tail.x - head.x;
   const dy = tail.y - head.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
   const angle = Math.atan2(dy, dx);
   
   ctx.save();
   const segments = 45;
   
-  // 1. Draw outer body outline
   ctx.beginPath();
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
     const lx = head.x + dx * t;
     const ly = head.y + dy * t;
-    
-    // Create organic slithering sine waves tapering off near the tail
     const wave = Math.sin(t * Math.PI * cfg.waves) * cfg.amp * (1 - t * 0.4);
     const px = lx + Math.cos(angle + Math.PI/2) * wave;
     const py = ly + Math.sin(angle + Math.PI/2) * wave;
@@ -918,17 +880,15 @@ function drawVectorSnake(ctx, fromCell, toCell, cfg) {
   ctx.lineJoin = 'round';
   ctx.stroke();
 
-  // 2. Main color body fill
   ctx.strokeStyle = cfg.color;
   ctx.lineWidth = 10;
   ctx.stroke();
   
-  // 3. Inner belly design highlight pattern
   ctx.strokeStyle = '#ffffff77';
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // Draw expressive vector eyes on head
+  // Draw Eyes
   ctx.fillStyle = '#000';
   ctx.beginPath();
   ctx.arc(head.x - 3, head.y - 2, 2.5, 0, Math.PI * 2);
@@ -941,7 +901,7 @@ function drawVectorSnake(ctx, fromCell, toCell, cfg) {
   ctx.arc(head.x + 2, head.y - 3, 1, 0, Math.PI * 2);
   ctx.fill();
 
-  // Draw cute slithering tongue
+  // Draw Tongue
   ctx.strokeStyle = '#ff3344';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -962,10 +922,8 @@ function drawVectorLadder(ctx, fromCell, toCell) {
   const angle = Math.atan2(dy, dx);
   
   const railOffset = 7;
-  
   ctx.save();
   
-  // Calculate Rail line positions
   const lx1 = start.x + Math.cos(angle + Math.PI/2) * railOffset;
   const ly1 = start.y + Math.sin(angle + Math.PI/2) * railOffset;
   const lx2 = end.x + Math.cos(angle + Math.PI/2) * railOffset;
@@ -976,16 +934,13 @@ function drawVectorLadder(ctx, fromCell, toCell) {
   const rx2 = end.x + Math.cos(angle - Math.PI/2) * railOffset;
   const ry2 = end.y + Math.sin(angle - Math.PI/2) * railOffset;
   
-  // Outer rails outline mapping
   ctx.strokeStyle = '#0e2324';
   ctx.lineWidth = 5;
-  ctx.lineCap = 'square';
   ctx.beginPath();
   ctx.moveTo(lx1, ly1); ctx.lineTo(lx2, ly2);
   ctx.moveTo(rx1, ry1); ctx.lineTo(rx2, ry2);
   ctx.stroke();
   
-  // Inner crisp white rail filling
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -993,11 +948,7 @@ function drawVectorLadder(ctx, fromCell, toCell) {
   ctx.moveTo(rx1, ry1); ctx.lineTo(rx2, ry2);
   ctx.stroke();
   
-  // Draw perfect ladder crossbars rungs
   const rungCount = Math.max(4, Math.floor(dist / 13));
-  ctx.strokeStyle = '#0e2324';
-  ctx.lineWidth = 3.5;
-  
   for (let i = 0; i <= rungCount; i++) {
     const t = i / rungCount;
     const cx1 = lx1 + (lx2 - lx1) * t;
@@ -1005,17 +956,14 @@ function drawVectorLadder(ctx, fromCell, toCell) {
     const cx2 = rx1 + (rx2 - rx1) * t;
     const cy2 = ry1 + (ry2 - ry1) * t;
     
-    // Draw background track outline
     ctx.strokeStyle = '#0e2324';
     ctx.lineWidth = 4.5;
     ctx.beginPath(); ctx.moveTo(cx1, cy1); ctx.lineTo(cx2, cy2); ctx.stroke();
     
-    // Draw clean inner white rungs
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(cx1, cy1); ctx.lineTo(cx2, cy2); ctx.stroke();
   }
-  
   ctx.restore();
 }
 
@@ -1026,42 +974,45 @@ function drawBoard() {
 
   ctx.clearRect(0, 0, W, W);
 
-  // 1. Draw Checkerboard Tiles perfectly copying the vector image palette
-  for (let row = 0; row < BOARD_SIZE; row++) {
-    for (let col = 0; col < BOARD_SIZE; col++) {
-      const cell = (BOARD_SIZE - 1 - row) * BOARD_SIZE + (row % 2 === 0 ? col + 1 : BOARD_SIZE - col);
-      const x = col * CELL_SIZE;
-      const y = row * CELL_SIZE;
-      
-      const isEven = (row + col) % 2 === 0;
-      ctx.fillStyle = isEven ? '#c6ebd6' : '#4ba2a5'; // Vector Theme Colors
-      ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-      
-      ctx.strokeStyle = '#388385';
-      ctx.lineWidth = 0.5;
-      ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
-
-      // Clean bold centered typography labels
-      ctx.fillStyle = '#112526';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(cell, x + CELL_SIZE / 2, y + CELL_SIZE / 2);
+  // 1. Render Palette-Perfect Grid Tiles directly mapping to standard sequential coordinates
+  for (let cell = 1; cell <= 100; cell++) {
+    const gridRowFromBottom = Math.floor((cell - 1) / BOARD_SIZE);
+    const row = (BOARD_SIZE - 1) - gridRowFromBottom;
+    let col = (cell - 1) % BOARD_SIZE;
+    if (gridRowFromBottom % 2 === 1) {
+      col = (BOARD_SIZE - 1) - col;
     }
+    
+    const x = col * CELL_SIZE;
+    const y = row * CELL_SIZE;
+    
+    const isEven = (row + col) % 2 === 0;
+    ctx.fillStyle = isEven ? '#c6ebd6' : '#4ba2a5';
+    ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+    
+    ctx.strokeStyle = '#388385';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+
+    ctx.fillStyle = '#112526';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(cell, x + CELL_SIZE / 2, y + CELL_SIZE / 2);
   }
 
-  // 2. Draw Vector Ladders
+  // 2. Render Ladders
   Object.entries(LADDERS).forEach(([from, to]) => {
     drawVectorLadder(ctx, parseInt(from), to);
   });
 
-  // 3. Draw Vector Wavy Snakes
+  // 3. Render Custom Vector Snakes
   Object.entries(SNAKES).forEach(([from, to]) => {
     const cfg = SNAKE_STYLES[from] || { color: '#ef5350', waves: 2, amp: 15 };
     drawVectorSnake(ctx, parseInt(from), to, cfg);
   });
 
-  // 4. Draw Player Tokens
+  // 4. Render Player Tokens
   state.players.forEach((p, i) => {
     const pos = state.positions[i] || 0;
     if (pos < 1) return;
@@ -1147,8 +1098,8 @@ function applyMove(playerIdx, dice, newPos, nextTurn) {
   state.currentTurn = nextTurn;
 
   let statusMsg = `${p.name} rolled ${dice} → Sq ${newPos}`;
-  if (SNAKES[oldPos + dice] === newPos) statusMsg += ' 🐍 Bitten by a Snake!';
-  else if (LADDERS[oldPos + dice] === newPos) statusMsg += ' 🪜 Climbed a Ladder!';
+  if (SNAKES[oldPos + dice] === newPos) statusMsg += ' 🐍 Snake Bite!';
+  else if (LADDERS[oldPos + dice] === newPos) statusMsg += ' 🪜 Ladder Climb!';
   if (newPos === 100) statusMsg += ' 🏆 WINNER!';
 
   document.getElementById('gameStatus').textContent = statusMsg;
