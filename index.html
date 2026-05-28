@@ -132,12 +132,14 @@
     width: 36px; height: 36px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700;
-    flex-shrink: 0;
+    flex-shrink: 0; overflow: hidden; background: var(--ue-card);
   }
-  .av-0 { background: rgba(0,180,255,0.15); border: 1px solid var(--ue-accent); color: var(--ue-accent); }
-  .av-1 { background: rgba(255,107,0,0.15); border: 1px solid var(--ue-accent2); color: var(--ue-accent2); }
-  .av-2 { background: rgba(0,255,136,0.15); border: 1px solid var(--ue-green); color: var(--ue-green); }
-  .av-3 { background: rgba(139,92,246,0.15); border: 1px solid var(--ue-purple); color: var(--ue-purple); }
+  .player-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  
+  .av-0 { border: 2px solid var(--ue-accent); color: var(--ue-accent); }
+  .av-1 { border: 2px solid var(--ue-accent2); color: var(--ue-accent2); }
+  .av-2 { border: 2px solid var(--ue-green); color: var(--ue-green); }
+  .av-3 { border: 2px solid var(--ue-purple); color: var(--ue-purple); }
 
   .player-info { flex: 1; }
   .player-name { font-size: 15px; font-weight: 600; color: var(--ue-text); }
@@ -200,29 +202,32 @@
   #gameCanvas {
     border: 5px solid #0d4143;
     border-radius: 6px; display: block;
-    width: 100%;
-    max-width: 460px;
-    height: auto;
-    aspect-ratio: 1 / 1;
+    width: 100%; max-width: 460px; height: auto; aspect-ratio: 1 / 1;
     box-shadow: 0 0 20px rgba(0,180,255,0.15);
   }
 
   .game-controls { display: flex; gap: 10px; align-items: center; width: 100%; max-width: 460px; }
   .dice-display { background: var(--ue-panel); border: 1px solid var(--ue-border); border-radius: 4px; padding: 8px 16px; }
   
+  /* Ludo Themed Crisp Visual Dice Layout Container */
   .dice-face {
     width: 44px; height: 44px;
-    background: var(--ue-bg); border: 2px solid var(--ue-accent);
-    border-radius: 6px; display: grid; place-items: center;
-    font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 900;
-    color: var(--ue-accent); transition: all 0.15s;
+    background: #ffffff; border: 2px solid var(--ue-border);
+    border-radius: 6px; display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3px; padding: 5px;
+    transition: transform 0.1s ease-out;
   }
-  .dice-face.rolling { animation: diceRoll 0.5s ease; }
-  @keyframes diceRoll {
-    0%,100% { transform: rotate(0deg) scale(1); }
-    25% { transform: rotate(-15deg) scale(1.1); }
-    75% { transform: rotate(15deg) scale(1.1); }
+
+  .dice-dot {
+    background: #112526;
+    border-radius: 50%;
+    width: 6px; height: 6px;
+    margin: auto;
+    opacity: 0;
   }
+  .dice-dot.active { opacity: 1; }
 
   .turn-info { flex: 1; background: var(--ue-panel); border: 1px solid var(--ue-border); border-radius: 4px; padding: 8px 14px; }
   .turn-label { font-size: 11px; color: var(--ue-muted); letter-spacing: 2px; }
@@ -242,19 +247,26 @@
   .game-sidebar { display: flex; flex-direction: column; gap: 10px; width: 100%; }
   .scoreboard { background: var(--ue-panel); border: 1px solid var(--ue-border); border-radius: 4px; padding: 12px; }
   
-  .sb-row {
-    display: flex; align-items: center; gap: 8px; padding: 5px 0;
-    border-bottom: 1px solid var(--ue-border);
-  }
+  .sb-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--ue-border); }
   .sb-row:last-child { border-bottom: none; }
   .sb-pos { font-family: 'Orbitron', monospace; font-size: 11px; color: var(--ue-muted); width: 18px; }
-  .sb-pip { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .sb-pip { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; overflow: hidden; background: var(--ue-card); display: flex; align-items: center; justify-content: center; }
+  .sb-pip img { width: 100%; height: 100%; object-fit: cover; }
   .sb-name { flex: 1; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sb-sq { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--ue-muted); }
 
   .voice-controls { background: var(--ue-panel); border: 1px solid var(--ue-border); border-radius: 4px; padding: 12px; }
   .vc-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
   .vc-name { flex: 1; font-size: 13px; }
+
+  /* Camera Sub-infrastructure CSS styling setup */
+  .camera-box {
+    display: flex; flex-direction: column; gap: 8px; align-items: center; justify-content: center; margin-top: 10px;
+  }
+  .video-preview {
+    width: 120px; height: 120px; border-radius: 50%; object-fit: cover; background: #000;
+    border: 2px dashed var(--ue-border); transform: scaleX(-1);
+  }
 
   /* ── WIN SCREEN ── */
   .win-screen {
@@ -299,10 +311,7 @@
     animation: slideIn 0.3s ease; box-shadow: var(--ue-glow);
     pointer-events: none;
   }
-  @keyframes slideIn {
-    from { transform: translateX(40px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
+  @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
   .err { color: var(--ue-red); font-size: 12px; margin-top: 6px; }
   .webrtc-info {
@@ -336,6 +345,15 @@
       <div class="panel-label">Player Identity</div>
       <input class="ue-input" id="nameInput" placeholder="Enter your callsign..." maxlength="16" />
       <div class="err" id="nameErr"></div>
+      
+      <div class="camera-box">
+        <video id="webcamFeed" class="video-preview" autoplay playsinline style="display:none;"></video>
+        <img id="capturedAvatar" class="video-preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23161b26' stroke='%232a3448' stroke-width='2'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='%235a6880' font-family='sans-serif' font-size='12'>NO PHOTO</text></svg>"/>
+        <div style="display:flex; gap:8px; width:100%;">
+          <button type="button" class="ue-btn" style="font-size:10px; padding:6px;" onclick="bootWebcam()">Start Cam</button>
+          <button type="button" class="ue-btn orange" id="snapBtn" style="font-size:10px; padding:6px; display:none;" onclick="triggerSnapshot()">Snap Pawn</button>
+        </div>
+      </div>
     </div>
 
     <div class="ue-panel">
@@ -355,7 +373,7 @@
       <div class="webrtc-info">
         <b>WebRTC P2P</b> voice &amp; data channels active in this session.<br>
         Voice chat uses your microphone (permission required).<br>
-        Real-time messaging via DataChannel — no server needed.
+        Real-time messaging via DataChannel — max 4 players.
       </div>
     </div>
   </div>
@@ -388,7 +406,7 @@
       <div class="status-bar" id="roomStatus">Waiting for players to join...</div>
 
       <button class="ue-btn gold" id="startBtn" onclick="startGame()" disabled style="margin-top:auto;">
-        ▶ LAUNCH GAME
+        ▶ LAUNCH GAME (2-4 PLAYERS)
       </button>
     </div>
 
@@ -416,7 +434,11 @@
       <canvas id="gameCanvas" width="460" height="460"></canvas>
       <div class="game-controls">
         <div class="dice-display">
-          <div class="dice-face" id="diceFace">–</div>
+          <div class="dice-face" id="diceFace">
+            <div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div>
+            <div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div>
+            <div class="dice-dot"></div><div class="dice-dot"></div><div class="dice-dot"></div>
+          </div>
         </div>
         <button class="roll-btn" id="rollBtn" onclick="rollDice()" disabled>🎲 ROLL</button>
         <div class="turn-info">
@@ -462,9 +484,7 @@
 <script>
 const COLORS = ['#00b4ff','#ff6b00','#00ff88','#8b5cf6'];
 const COLOR_NAMES = ['Blue','Orange','Green','Purple'];
-const PIPS = ['#00b4ff','#ff6b00','#00ff88','#8b5cf6'];
 
-// ── DATA FOR SNAKES AND LADDERS ──
 const SNAKES = { 16:6, 59:19, 63:18, 67:28, 75:24, 89:69, 95:76, 99:77 };
 const LADDERS = { 8:14, 17:23, 32:50, 35:46, 56:64, 68:73, 76:97, 79:81 };
 
@@ -482,6 +502,7 @@ const SNAKE_STYLES = {
 let state = {
   myName: '',
   myId: Math.random().toString(36).slice(2,8),
+  myPhoto: null, // Compressed Base64 binary token
   roomCode: '',
   isHost: false,
   players: [],
@@ -499,6 +520,47 @@ let state = {
 };
 
 let sigChannel = null;
+let audioCtxInstance = null;
+let cameraStream = null;
+
+// ── BIOMETRIC CAMERA CAPTURE UTILITY MAPPINGS ──
+async function bootWebcam() {
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { width: 150, height: 150 }, audio: false });
+    const vid = document.getElementById('webcamFeed');
+    vid.srcObject = cameraStream;
+    vid.style.display = 'block';
+    document.getElementById('capturedAvatar').style.display = 'none';
+    document.getElementById('snapBtn').style.style.display = 'inline-block';
+  } catch (e) {
+    notify('Camera initialization dropped.');
+  }
+}
+
+function triggerSnapshot() {
+  const vid = document.getElementById('webcamFeed');
+  const canvas = document.createElement('canvas');
+  canvas.width = 80;
+  canvas.height = 80;
+  const ctx = canvas.getContext('2d');
+  
+  // Mirror frame snapshot alignment matching video display element
+  ctx.translate(80, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(vid, 0, 0, 80, 80);
+  
+  // Low footprint profile transport stream data compression configuration
+  state.myPhoto = canvas.toDataURL('image/jpeg', 0.4);
+  
+  document.getElementById('capturedAvatar').src = state.myPhoto;
+  document.getElementById('capturedAvatar').style.display = 'block';
+  vid.style.display = 'none';
+  document.getElementById('snapBtn').style.display = 'none';
+  
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+  }
+}
 
 function initSignaling(roomCode) {
   if (sigChannel) sigChannel.close();
@@ -510,19 +572,29 @@ async function handleSignal(msg) {
   if (msg.to && msg.to !== state.myId) return;
   if (msg.from === state.myId) return;
 
+  // Max 4 Capacity Rule Matrix Check
   if (msg.type === 'join') {
-    addPeer(msg.from, msg.player, true);
+    if (state.players.length >= 4) {
+      broadcast({ type: 'roomFull', from: state.myId, to: msg.from });
+      return;
+    }
+    await addPeer(msg.from, msg.player, true);
     broadcast({ type: 'welcome', from: state.myId, to: msg.from,
-      player: { id: state.myId, name: state.myName, index: state.myIndex },
+      player: { id: state.myId, name: state.myName, index: state.myIndex, photo: state.myPhoto },
       allPlayers: state.players
     });
+  }
+  if (msg.type === 'roomFull') {
+    notify('Room is full! (Max 4 players allowed)');
+    backToLobby();
+    return;
   }
   if (msg.type === 'welcome') {
     if (!state.players.find(p => p.id === msg.player.id)) {
       state.players = msg.allPlayers || state.players;
       renderPlayers();
     }
-    addPeer(msg.from, msg.player, false);
+    await addPeer(msg.from, msg.player, false);
   }
   if (msg.type === 'offer') {
     await handleOffer(msg.from, msg.sdp);
@@ -550,31 +622,14 @@ async function handleSignal(msg) {
     animateDice(msg.dice);
     setTimeout(() => applyMove(msg.playerIdx, msg.dice, msg.newPos, msg.nextTurn), 600);
   }
-  if (msg.type === 'playerUpdate') {
-    const idx = state.players.findIndex(p => p.playerId === msg.playerId);
-    if (idx < 0) {
-      state.players.push(msg.playerData);
-    }
-    renderPlayers();
-  }
 }
 
 function broadcast(msg) {
   if (sigChannel) sigChannel.postMessage(msg);
 }
 
-async function addPeer(peerId, playerData, initiator) {
-  if (state.peerConnections[peerId]) return;
-
-  if (!state.players.find(p => p.id === peerId) && playerData) {
-    if (state.players.length < 4) {
-      if (playerData.index === undefined || playerData.index === -1) {
-        playerData.index = state.players.length;
-      }
-      state.players.push({ id: peerId, name: playerData.name, index: playerData.index });
-    }
-    renderPlayers();
-  }
+async function getOrCreatePeerConnection(peerId, initiator) {
+  if (state.peerConnections[peerId]) return state.peerConnections[peerId];
 
   const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
   state.peerConnections[peerId] = pc;
@@ -584,10 +639,15 @@ async function addPeer(peerId, playerData, initiator) {
   }
 
   pc.ontrack = (e) => {
-    const audio = new Audio();
+    let audio = document.getElementById('audio_' + peerId);
+    if (!audio) {
+      audio = new Audio();
+      audio.id = 'audio_' + peerId;
+      document.body.appendChild(audio);
+    }
     audio.srcObject = e.streams[0];
     audio.autoplay = true;
-    document.body.appendChild(audio);
+    audio.play().catch(() => {});
     monitorSpeaking(peerId, e.streams[0]);
   };
 
@@ -600,18 +660,38 @@ async function addPeer(peerId, playerData, initiator) {
   if (initiator) {
     const dc = pc.createDataChannel('chat');
     setupDataChannel(peerId, dc);
+  } else {
+    pc.ondatachannel = (e) => setupDataChannel(peerId, e.channel);
+  }
 
+  return pc;
+}
+
+async function addPeer(peerId, playerData, initiator) {
+  if (state.peerConnections[peerId]) return;
+
+  if (!state.players.find(p => p.id === peerId) && playerData) {
+    if (state.players.length < 4) {
+      if (playerData.index === undefined || playerData.index === -1) {
+        playerData.index = state.players.length;
+      }
+      state.players.push({ id: peerId, name: playerData.name, index: playerData.index, photo: playerData.photo });
+    }
+    renderPlayers();
+  }
+
+  const pc = await getOrCreatePeerConnection(peerId, initiator);
+
+  if (initiator) {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     broadcast({ type: 'offer', from: state.myId, to: peerId, sdp: offer.sdp });
-  } else {
-    pc.ondatachannel = (e) => setupDataChannel(peerId, e.channel);
   }
 }
 
 function setupDataChannel(peerId, dc) {
   state.dataChannels[peerId] = dc;
-  dc.onopen = () => notify('Peer connected: ' + (state.players.find(p=>p.id===peerId)?.name||'Player'));
+  dc.onopen = () => notify('Connected to: ' + (state.players.find(p=>p.id===peerId)?.name||'Player'));
   dc.onmessage = (e) => {
     try {
       const msg = JSON.parse(e.data);
@@ -621,19 +701,7 @@ function setupDataChannel(peerId, dc) {
 }
 
 async function handleOffer(peerId, sdp) {
-  const pc = state.peerConnections[peerId] || (() => {
-    const p = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
-    state.peerConnections[peerId] = p;
-    if (state.localStream) state.localStream.getTracks().forEach(t => p.addTrack(t, state.localStream));
-    p.ontrack = (e) => {
-      const audio = new Audio(); audio.srcObject = e.streams[0]; audio.autoplay = true; document.body.appendChild(audio);
-      monitorSpeaking(peerId, e.streams[0]);
-    };
-    p.onicecandidate = (e) => { if (e.candidate) broadcast({ type: 'ice', from: state.myId, to: peerId, sdp: e.candidate }); };
-    p.ondatachannel = (e) => setupDataChannel(peerId, e.channel);
-    return p;
-  })();
-
+  const pc = await getOrCreatePeerConnection(peerId, false);
   await pc.setRemoteDescription({ type: 'offer', sdp });
   const answer = await pc.createAnswer();
   await pc.setLocalDescription(answer);
@@ -642,7 +710,13 @@ async function handleOffer(peerId, sdp) {
 
 function monitorSpeaking(peerId, stream) {
   try {
-    const ctx = new AudioContext();
+    if (!audioCtxInstance) {
+      audioCtxInstance = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    const ctx = audioCtxInstance;
+    if (ctx.state === 'suspended') {
+      document.addEventListener('click', () => { ctx.resume(); }, { once: true });
+    }
     const src = ctx.createMediaStreamSource(stream);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 512;
@@ -660,27 +734,34 @@ function monitorSpeaking(peerId, stream) {
   } catch(e) {}
 }
 
-async function toggleMic() {
-  if (!state.micOn) {
-    try {
-      state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      state.micOn = true;
-      Object.values(state.peerConnections).forEach(pc => {
-        state.localStream.getTracks().forEach(t => pc.addTrack(t, state.localStream));
-      });
-      monitorSpeaking(state.myId, state.localStream);
-      notify('🎤 Microphone ON');
-    } catch(e) {
-      notify('Mic access denied — using text chat only');
-      return;
-    }
-  } else {
-    if (state.localStream) { state.localStream.getTracks().forEach(t => t.stop()); state.localStream = null; }
+async function initLocalStream() {
+  if (state.localStream) return true;
+  try {
+    state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    state.micOn = true;
+    monitorSpeaking(state.myId, state.localStream);
+    updateMicUI();
+    return true;
+  } catch(e) {
+    notify('Microphone dropped — text initialization only.');
     state.micOn = false;
-    delete state.speaking[state.myId];
-    notify('🔇 Microphone OFF');
+    updateMicUI();
+    return false;
   }
-  updateMicUI();
+}
+
+function toggleMic() {
+  if (!state.localStream) {
+    initLocalStream().then(success => { if (success) notify('🎤 Microphone Connected'); });
+    return;
+  }
+  const audioTrack = state.localStream.getAudioTracks()[0];
+  if (audioTrack) {
+    audioTrack.enabled = !audioTrack.enabled;
+    state.micOn = audioTrack.enabled;
+    notify(state.micOn ? '🎤 Mic Active' : '🔇 Mic Muted');
+    updateMicUI();
+  }
 }
 
 function updateMicUI() {
@@ -706,29 +787,35 @@ function updateVoiceUI() {
   }).join('');
 }
 
-function hostRoom() {
+// ── ROOM INFRASTRUCTURE ──
+async function hostRoom() {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) { document.getElementById('nameErr').textContent = 'Enter your callsign first'; return; }
+  
+  await initLocalStream();
+  
   state.myName = name;
   state.isHost = true;
   state.roomCode = Math.random().toString(36).slice(2,8).toUpperCase();
   state.myIndex = 0;
-  state.players = [{ id: state.myId, name: state.myName, index: 0 }];
+  state.players = [{ id: state.myId, name: state.myName, index: 0, photo: state.myPhoto }];
 
   initSignaling(state.roomCode);
   showScreen('roomScreen');
   document.getElementById('roomCodeDisplay').textContent = state.roomCode;
   document.getElementById('topRoomCode').textContent = 'ROOM: ' + state.roomCode;
   renderPlayers();
-  addSysMsg('room', 'Room created. Share code: ' + state.roomCode);
+  addSysMsg('room', 'Room created: ' + state.roomCode);
 }
 
-function joinRoom() {
+async function joinRoom() {
   const name = document.getElementById('nameInput').value.trim();
   const code = document.getElementById('codeInput').value.trim().toUpperCase();
   if (!name) { document.getElementById('nameErr').textContent = 'Enter your callsign first'; return; }
   if (code.length < 4) { document.getElementById('joinErr').textContent = 'Enter a valid room code'; return; }
 
+  await initLocalStream();
+  
   state.myName = name;
   state.isHost = false;
   state.roomCode = code;
@@ -739,9 +826,8 @@ function joinRoom() {
   document.getElementById('roomCodeDisplay').textContent = code;
   document.getElementById('topRoomCode').textContent = 'ROOM: ' + code;
 
-  broadcast({ type: 'join', from: state.myId, player: { id: state.myId, name: state.myName, index: -1 } });
-  addSysMsg('room', 'Joining room ' + code + '...');
-  notify('Joined room ' + code);
+  broadcast({ type: 'join', from: state.myId, player: { id: state.myId, name: state.myName, index: -1, photo: state.myPhoto } });
+  addSysMsg('room', 'Handshaking onto ' + code + '...');
 }
 
 function backToLobby() {
@@ -765,19 +851,23 @@ function renderPlayers() {
     const p = state.players.find(p => p.index === i);
     const isMe = p && p.id === state.myId;
     if (p) {
+      const avatarHTML = p.photo 
+        ? `<img src="${p.photo}">` 
+        : `<span>${p.name.substring(0,2).toUpperCase()}</span>`;
+        
       html += `<div class="player-slot occupied ${isMe?'me':''}">
-        <div class="player-avatar av-${i}">${p.name.substring(0,2).toUpperCase()}</div>
+        <div class="player-avatar av-${i}">${avatarHTML}</div>
         <div class="player-info">
           <div class="player-name" style="color:${COLORS[i]}">${p.name}${isMe?' (You)':''}</div>
-          <div class="player-status">■ CONNECTED</div>
+          <div class="player-status">■ READY</div>
         </div>
         <div class="voice-indicator ${state.speaking[p.id]?'speaking':''}"></div>
       </div>`;
     } else {
       html += `<div class="player-slot empty-slot">
-        <div class="player-avatar" style="opacity:0.3;background:var(--ue-bg);border:1px solid var(--ue-border);">P${i+1}</div>
+        <div class="player-avatar" style="opacity:0.3; background:var(--ue-bg); border:1px solid var(--ue-border);">P${i+1}</div>
         <div class="player-info">
-          <div class="player-name">Waiting for player...</div>
+          <div class="player-name">Awaiting connector...</div>
           <div class="player-status">○ EMPTY SLOT</div>
         </div>
       </div>`;
@@ -786,8 +876,10 @@ function renderPlayers() {
   el.innerHTML = html;
   const cnt = state.players.length;
   document.getElementById('playerCount').textContent = cnt;
+  
+  // Rule Metric Check: Enabled lock strictly limited between 2 and 4 players
   const startBtn = document.getElementById('startBtn');
-  if (startBtn) startBtn.disabled = !(state.isHost && cnt >= 2);
+  if (startBtn) startBtn.disabled = !(state.isHost && cnt >= 2 && cnt <= 4);
 
   if (state.myIndex === -1) {
     const me = state.players.find(p => p.id === state.myId);
@@ -798,7 +890,7 @@ function renderPlayers() {
 function startGame() {
   if (!state.isHost) return;
   const n = state.players.length;
-  if (n < 2) return;
+  if (n < 2 || n > 4) return;
 
   state.players.forEach((p, i) => { p.index = i; });
   state.positions = new Array(n).fill(0);
@@ -823,25 +915,70 @@ function launchGame() {
 
   showScreen('gameScreen');
   document.getElementById('gameRoomCode').textContent = 'ROOM: ' + state.roomCode;
+  
+  // Set default Ludo layout display matching state initialization
+  renderDiceDots(document.getElementById('diceFace'), 1);
+  
   drawBoard();
   updateScoreboard();
   updateVoiceUI();
   updateTurnUI();
-  addSysMsg('game', 'Game started! ' + state.players[0].name + ' goes first.');
+  addSysMsg('game', 'Match live! ' + state.players[0].name + ' rolls first.');
+}
+
+// ── CORE LOGIC DOT MATRIX LAYOUT DISPLAY ──
+function renderDiceDots(el, val) {
+  const dots = el.querySelectorAll('.dice-dot');
+  dots.forEach(d => d.classList.remove('active'));
+  
+  // Map index tracking positions on 3x3 layout coordinate system Matrix
+  const dotLayoutConfigs = {
+    1: [4],
+    2: [0, 8],
+    3: [0, 4, 8],
+    4: [0, 2, 6, 8],
+    5: [0, 2, 4, 6, 8],
+    6: [0, 2, 3, 5, 6, 8]
+  };
+  
+  const activePositions = dotLayoutConfigs[val] || [];
+  activePositions.forEach(idx => {
+    if (dots[idx]) dots[idx].classList.add('active');
+  });
+}
+
+// Fluid High Frequency Shuffle Rolling Engine Animate Loop
+function animateDice(val) {
+  const el = document.getElementById('diceFace');
+  if (!el) return;
+  let ticks = 0;
+  
+  const rollInterval = setInterval(() => {
+    const randomFakeFace = Math.floor(Math.random() * 6) + 1;
+    renderDiceDots(el, randomFakeFace);
+    
+    // Twist angular transforms mimicking active velocity roll physics
+    el.style.transform = `rotate(${Math.random() * 180 - 90}deg) scale(${0.85 + Math.random() * 0.25})`;
+    ticks++;
+    
+    if (ticks > 12) {
+      clearInterval(rollInterval);
+      renderDiceDots(el, val);
+      el.style.transform = 'none';
+    }
+  }, 45);
 }
 
 // ── FIXED COORDINATE RENDERING ENGINE ──
 const BOARD_SIZE = 10;
 const CELL_SIZE = 46;
 
-// Unified coordinate lookup function
 function cellToXY(cell) {
   if (cell < 1) return { x: -999, y: -999 };
   const gridRowFromBottom = Math.floor((cell - 1) / BOARD_SIZE);
-  const row = (BOARD_SIZE - 1) - gridRowFromBottom; // Map bottom-up row to top-down coordinates
+  const row = (BOARD_SIZE - 1) - gridRowFromBottom;
   let col = (cell - 1) % BOARD_SIZE;
   
-  // Apply zigzag pattern on alternative rows
   if (gridRowFromBottom % 2 === 1) {
     col = (BOARD_SIZE - 1) - col;
   }
@@ -854,115 +991,55 @@ function cellToXY(cell) {
 function drawVectorSnake(ctx, fromCell, toCell, cfg) {
   const head = cellToXY(fromCell);
   const tail = cellToXY(toCell);
-  
-  const dx = tail.x - head.x;
-  const dy = tail.y - head.y;
+  const dx = tail.x - head.x, dy = tail.y - head.y;
   const angle = Math.atan2(dy, dx);
   
   ctx.save();
   const segments = 45;
-  
   ctx.beginPath();
   for (let i = 0; i <= segments; i++) {
     const t = i / segments;
-    const lx = head.x + dx * t;
-    const ly = head.y + dy * t;
+    const lx = head.x + dx * t, ly = head.y + dy * t;
     const wave = Math.sin(t * Math.PI * cfg.waves) * cfg.amp * (1 - t * 0.4);
     const px = lx + Math.cos(angle + Math.PI/2) * wave;
     const py = ly + Math.sin(angle + Math.PI/2) * wave;
-    
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
   }
-  ctx.strokeStyle = '#0e2324';
-  ctx.lineWidth = 14;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.stroke();
+  ctx.strokeStyle = '#0e2324'; ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.strokeStyle = cfg.color; ctx.lineWidth = 10; ctx.stroke();
+  ctx.strokeStyle = '#ffffff77'; ctx.lineWidth = 2.5; ctx.stroke();
 
-  ctx.strokeStyle = cfg.color;
-  ctx.lineWidth = 10;
-  ctx.stroke();
-  
-  ctx.strokeStyle = '#ffffff77';
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
-
-  // Draw Eyes
-  ctx.fillStyle = '#000';
-  ctx.beginPath();
-  ctx.arc(head.x - 3, head.y - 2, 2.5, 0, Math.PI * 2);
-  ctx.arc(head.x + 3, head.y - 2, 2.5, 0, Math.PI * 2);
-  ctx.fill();
-  
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(head.x - 4, head.y - 3, 1, 0, Math.PI * 2);
-  ctx.arc(head.x + 2, head.y - 3, 1, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Draw Tongue
-  ctx.strokeStyle = '#ff3344';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(head.x, head.y);
-  ctx.lineTo(head.x + Math.cos(angle - Math.PI)*7, head.y + Math.sin(angle - Math.PI)*7);
-  ctx.stroke();
-  
+  // Head Features
+  ctx.fillStyle = '#000'; ctx.beginPath();
+  ctx.arc(head.x - 3, head.y - 2, 2.5, 0, Math.PI * 2); ctx.arc(head.x + 3, head.y - 2, 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath();
+  ctx.arc(head.x - 4, head.y - 3, 1, 0, Math.PI * 2); ctx.arc(head.x + 2, head.y - 3, 1, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#ff3344'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(head.x, head.y);
+  ctx.lineTo(head.x + Math.cos(angle - Math.PI)*7, head.y + Math.sin(angle - Math.PI)*7); ctx.stroke();
   ctx.restore();
 }
 
 function drawVectorLadder(ctx, fromCell, toCell) {
-  const start = cellToXY(fromCell);
-  const end = cellToXY(toCell);
-  
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const angle = Math.atan2(dy, dx);
-  
+  const start = cellToXY(fromCell), end = cellToXY(toCell);
+  const dx = end.x - start.x, dy = end.y - start.y, dist = Math.sqrt(dx * dx + dy * dy), angle = Math.atan2(dy, dx);
   const railOffset = 7;
   ctx.save();
+  const lx1 = start.x + Math.cos(angle + Math.PI/2) * railOffset, ly1 = start.y + Math.sin(angle + Math.PI/2) * railOffset;
+  const lx2 = end.x + Math.cos(angle + Math.PI/2) * railOffset, ly2 = end.y + Math.sin(angle + Math.PI/2) * railOffset;
+  const rx1 = start.x + Math.cos(angle - Math.PI/2) * railOffset, ry1 = start.y + Math.sin(angle - Math.PI/2) * railOffset;
+  const rx2 = end.x + Math.cos(angle - Math.PI/2) * railOffset, ry2 = end.y + Math.sin(angle - Math.PI/2) * railOffset;
   
-  const lx1 = start.x + Math.cos(angle + Math.PI/2) * railOffset;
-  const ly1 = start.y + Math.sin(angle + Math.PI/2) * railOffset;
-  const lx2 = end.x + Math.cos(angle + Math.PI/2) * railOffset;
-  const ly2 = end.y + Math.sin(angle + Math.PI/2) * railOffset;
-  
-  const rx1 = start.x + Math.cos(angle - Math.PI/2) * railOffset;
-  const ry1 = start.y + Math.sin(angle - Math.PI/2) * railOffset;
-  const rx2 = end.x + Math.cos(angle - Math.PI/2) * railOffset;
-  const ry2 = end.y + Math.sin(angle - Math.PI/2) * railOffset;
-  
-  ctx.strokeStyle = '#0e2324';
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(lx1, ly1); ctx.lineTo(lx2, ly2);
-  ctx.moveTo(rx1, ry1); ctx.lineTo(rx2, ry2);
-  ctx.stroke();
-  
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(lx1, ly1); ctx.lineTo(lx2, ly2);
-  ctx.moveTo(rx1, ry1); ctx.lineTo(rx2, ry2);
-  ctx.stroke();
+  ctx.strokeStyle = '#0e2324'; ctx.lineWidth = 5; ctx.beginPath();
+  ctx.moveTo(lx1, ly1); ctx.lineTo(lx2, ly2); ctx.moveTo(rx1, ry1); ctx.lineTo(rx2, ry2); ctx.stroke();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
   
   const rungCount = Math.max(4, Math.floor(dist / 13));
   for (let i = 0; i <= rungCount; i++) {
     const t = i / rungCount;
-    const cx1 = lx1 + (lx2 - lx1) * t;
-    const cy1 = ly1 + (ly2 - ly1) * t;
-    const cx2 = rx1 + (rx2 - rx1) * t;
-    const cy2 = ry1 + (ry2 - ry1) * t;
-    
-    ctx.strokeStyle = '#0e2324';
-    ctx.lineWidth = 4.5;
-    ctx.beginPath(); ctx.moveTo(cx1, cy1); ctx.lineTo(cx2, cy2); ctx.stroke();
-    
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(cx1, cy1); ctx.lineTo(cx2, cy2); ctx.stroke();
+    const cx1 = lx1 + (lx2 - lx1) * t, cy1 = ly1 + (ly2 - ly1) * t;
+    const cx2 = rx1 + (rx2 - rx1) * t, cy2 = ry1 + (ry2 - ry1) * t;
+    ctx.strokeStyle = '#0e2324'; ctx.lineWidth = 4.5; ctx.beginPath(); ctx.moveTo(cx1, cy1); ctx.lineTo(cx2, cy2); ctx.stroke();
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
   }
   ctx.restore();
 }
@@ -974,68 +1051,56 @@ function drawBoard() {
 
   ctx.clearRect(0, 0, W, W);
 
-  // 1. Render Palette-Perfect Grid Tiles directly mapping to standard sequential coordinates
   for (let cell = 1; cell <= 100; cell++) {
     const gridRowFromBottom = Math.floor((cell - 1) / BOARD_SIZE);
     const row = (BOARD_SIZE - 1) - gridRowFromBottom;
     let col = (cell - 1) % BOARD_SIZE;
-    if (gridRowFromBottom % 2 === 1) {
-      col = (BOARD_SIZE - 1) - col;
-    }
-    
-    const x = col * CELL_SIZE;
-    const y = row * CELL_SIZE;
-    
-    const isEven = (row + col) % 2 === 0;
-    ctx.fillStyle = isEven ? '#c6ebd6' : '#4ba2a5';
+    if (gridRowFromBottom % 2 === 1) col = (BOARD_SIZE - 1) - col;
+    const x = col * CELL_SIZE, y = row * CELL_SIZE;
+    ctx.fillStyle = (row + col) % 2 === 0 ? '#c6ebd6' : '#4ba2a5';
     ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-    
-    ctx.strokeStyle = '#388385';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
-
-    ctx.fillStyle = '#112526';
-    ctx.font = 'bold 12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.strokeStyle = '#388385'; ctx.lineWidth = 0.5; ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+    ctx.fillStyle = '#112526'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(cell, x + CELL_SIZE / 2, y + CELL_SIZE / 2);
   }
 
-  // 2. Render Ladders
-  Object.entries(LADDERS).forEach(([from, to]) => {
-    drawVectorLadder(ctx, parseInt(from), to);
-  });
+  Object.entries(LADDERS).forEach(([from, to]) => drawVectorLadder(ctx, parseInt(from), to));
+  Object.entries(SNAKES).forEach(([from, to]) => drawVectorSnake(ctx, parseInt(from), to, SNAKE_STYLES[from] || { color: '#ef5350', waves: 2, amp: 15 }));
 
-  // 3. Render Custom Vector Snakes
-  Object.entries(SNAKES).forEach(([from, to]) => {
-    const cfg = SNAKE_STYLES[from] || { color: '#ef5350', waves: 2, amp: 15 };
-    drawVectorSnake(ctx, parseInt(from), to, cfg);
-  });
-
-  // 4. Render Player Tokens
+  // Dynamic Pawns Token Drawing Loop
   state.players.forEach((p, i) => {
     const pos = state.positions[i] || 0;
     if (pos < 1) return;
     const { x, y } = cellToXY(pos);
     const offset = [[-7,-7],[7,-7],[-7,7],[7,7]][i] || [0,0];
+    const px = x + offset[0], py = y + offset[1];
     
-    ctx.beginPath();
-    ctx.arc(x + offset[0], y + offset[1], 8, 0, Math.PI * 2);
-    ctx.fillStyle = COLORS[i];
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    ctx.save();
+    ctx.beginPath(); ctx.arc(px, py, 11, 0, Math.PI * 2); ctx.clip();
     
-    ctx.fillStyle = '#000';
-    ctx.font = 'bold 9px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(p.name[0].toUpperCase(), x + offset[0], y + offset[1]);
+    if (p.photo) {
+      if (!p.cachedImg) {
+        p.cachedImg = new Image();
+        p.cachedImg.src = p.photo;
+      }
+      if (p.cachedImg.complete) {
+        ctx.drawImage(p.cachedImg, px - 11, py - 11, 22, 22);
+      } else {
+        ctx.fillStyle = COLORS[i]; ctx.fill();
+      }
+    } else {
+      ctx.fillStyle = COLORS[i]; ctx.fill();
+      ctx.fillStyle = '#000'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(p.name[0].toUpperCase(), px, py);
+    }
+    ctx.restore();
+    
+    // Pawn ring outline border ring style loop matching snippet configuration
+    ctx.beginPath(); ctx.arc(px, py, 11, 0, Math.PI * 2); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2; ctx.stroke();
   });
 }
 
-// ── GAME LOGIC ──
+// ── TURNS & MOVEMENTS ──
 function updateTurnUI() {
   const p = state.players[state.currentTurn];
   if (!p) return;
@@ -1049,23 +1114,18 @@ function updateScoreboard() {
   const el = document.getElementById('scoreboardRows');
   if (!el) return;
   const sorted = [...state.players].sort((a, b) => (state.positions[b.index]||0) - (state.positions[a.index]||0));
-  el.innerHTML = sorted.map((p, i) => `
+  el.innerHTML = sorted.map((p, i) => {
+    const avatarDataHTML = p.photo 
+      ? `<img src="${p.photo}">` 
+      : `<span style="font-size:9px; font-weight:bold; color:${COLORS[p.index]}">${p.name[0].toUpperCase()}</span>`;
+    return `
     <div class="sb-row">
       <div class="sb-pos">${i+1}</div>
-      <div class="sb-pip" style="background:${COLORS[p.index]}"></div>
+      <div class="sb-pip av-${p.index}">${avatarDataHTML}</div>
       <div class="sb-name" style="color:${COLORS[p.index]}" title="${p.name}">${p.name}</div>
       <div class="sb-sq">Sq ${state.positions[p.index]||0}</div>
-    </div>`).join('');
-}
-
-function animateDice(val) {
-  const el = document.getElementById('diceFace');
-  if (!el) return;
-  el.classList.remove('rolling');
-  void el.offsetWidth;
-  el.classList.add('rolling');
-  el.textContent = val;
-  setTimeout(() => el.classList.remove('rolling'), 500);
+    </div>`;
+  }).join('');
 }
 
 function rollDice() {
@@ -1080,11 +1140,7 @@ function rollDice() {
 
   const nextTurn = newPos === 100 ? state.currentTurn : (state.currentTurn + 1) % state.players.length;
 
-  broadcast({
-    type: 'roll', from: state.myId,
-    playerIdx: state.myIndex,
-    dice, newPos, nextTurn
-  });
+  broadcast({ type: 'roll', from: state.myId, playerIdx: state.myIndex, dice, newPos, nextTurn });
 
   animateDice(dice);
   setTimeout(() => applyMove(state.myIndex, dice, newPos, nextTurn), 600);
@@ -1120,16 +1176,14 @@ function showWinner(name) {
   showScreen('winScreen');
 }
 
-// ── CHAT ──
+// ── UTILITIES & INITIALIZATIONS ──
 function sendChat(area) {
   const inputId = area === 'room' ? 'roomChatInput' : 'gameChatInput';
   const input = document.getElementById(inputId);
   const text = input.value.trim();
   if (!text) return;
   input.value = '';
-
-  broadcast({ type: 'chat', from: state.myId, chatArea: area,
-    sender: state.myName, senderIdx: state.myIndex, text });
+  broadcast({ type: 'chat', from: state.myId, chatArea: area, sender: state.myName, senderIdx: state.myIndex, text });
   appendChat(area, state.myName, state.myIndex, text);
 }
 
@@ -1137,41 +1191,28 @@ function appendChat(area, sender, senderIdx, text) {
   const id = area === 'room' ? 'roomChat' : 'gameChat';
   const el = document.getElementById(id);
   if (!el) return;
-  const div = document.createElement('div');
-  div.className = 'msg';
-  const idx = senderIdx >= 0 ? senderIdx : 0;
-  div.innerHTML = `<div class="msg-sender s${idx}">${sender}</div><div class="msg-text">${escHtml(text)}</div>`;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
+  const div = document.createElement('div'); div.className = 'msg';
+  div.innerHTML = `<div class="msg-sender s${senderIdx >= 0 ? senderIdx : 0}">${sender}</div><div class="msg-text">${escHtml(text)}</div>`;
+  el.appendChild(div); el.scrollTop = el.scrollHeight;
 }
 
 function addSysMsg(area, text) {
   const id = area === 'room' ? 'roomChat' : 'gameChat';
   const el = document.getElementById(id);
   if (!el) return;
-  const div = document.createElement('div');
-  div.className = 'msg-system';
-  div.textContent = text;
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
+  const div = document.createElement('div'); div.className = 'msg-system'; div.textContent = text;
+  el.appendChild(div); el.scrollTop = el.scrollHeight;
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function showScreen(id) {
   document.querySelectorAll('.screen, .win-screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (id === 'gameScreen') setTimeout(drawBoard, 50);
 }
-
 function notify(msg) {
-  const div = document.createElement('div');
-  div.className = 'notif';
-  div.textContent = msg;
-  document.getElementById('notifContainer').appendChild(div);
-  setTimeout(() => div.remove(), 3000);
+  const div = document.createElement('div'); div.className = 'notif'; div.textContent = msg;
+  document.getElementById('notifContainer').appendChild(div); setTimeout(() => div.remove(), 3000);
 }
 
 document.getElementById('nameInput').addEventListener('keydown', e => {
@@ -1179,9 +1220,7 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
 });
 
 window.addEventListener('resize', () => {
-    if(document.getElementById('gameScreen').classList.contains('active')) {
-        drawBoard();
-    }
+  if(document.getElementById('gameScreen').classList.contains('active')) drawBoard();
 });
 </script>
 </body>
